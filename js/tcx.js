@@ -24,7 +24,28 @@ export function buildTcx(entry) {
     : [{ label: entry.name, kind: 'work', durationSec: entry.totalSec }];
 
   for (const seg of segments) {
-    const lapStart = isoNoMs(new Date(cursorMs));
+    const lapStartMs = cursorMs;
+    const lapEndMs = cursorMs + seg.durationSec * 1000;
+    const lapStart = isoNoMs(new Date(lapStartMs));
+
+    // Trackpoints horodatés : sans eux, Garmin Connect ne sait pas calculer
+    // le « temps écoulé » et affiche NaN:NaN. On émet au moins un point au
+    // début et à la fin du lap (un par minute pour une courbe plus propre).
+    const trackpoints = [];
+    const stepMs = 60 * 1000;
+    for (let t = lapStartMs; t < lapEndMs; t += stepMs) {
+      trackpoints.push(t);
+    }
+    trackpoints.push(lapEndMs);
+
+    const track = trackpoints
+      .map((t) =>
+`          <Trackpoint>
+            <Time>${isoNoMs(new Date(t))}</Time>
+            <DistanceMeters>0.0</DistanceMeters>
+          </Trackpoint>`)
+      .join('\n');
+
     laps.push(
 `      <Lap StartTime="${lapStart}">
         <TotalTimeSeconds>${seg.durationSec.toFixed(1)}</TotalTimeSeconds>
@@ -33,9 +54,12 @@ export function buildTcx(entry) {
         <Intensity>${seg.kind === 'rest' ? 'Resting' : 'Active'}</Intensity>
         <TriggerMethod>Manual</TriggerMethod>
         <Notes>${xmlEscape(seg.label)}</Notes>
+        <Track>
+${track}
+        </Track>
       </Lap>`
     );
-    cursorMs += seg.durationSec * 1000;
+    cursorMs = lapEndMs;
   }
 
   const noteParts = [entry.name];
