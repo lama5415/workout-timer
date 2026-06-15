@@ -38,6 +38,7 @@ export const MOVEMENTS = [
     aliases: ['thrusters'],    // pour le futur parseur (Phase 3)
     measure: 'reps',           // mesure par défaut : 'reps' | 'm' | 'cal' | 'sec'
     loaded: true,              // porte généralement une charge externe
+    equipment: 'full',         // 'none' | 'minimal' | 'full' — voir §2.5
     fit: { category: 'squat', name: 'thruster' }, // à valider sur le profil FIT
   },
   // …
@@ -57,7 +58,23 @@ Champs d'un mouvement du catalogue :
 | `aliases` | `string[]` | Variantes orthographiques, pour le parseur Phase 3. Inutile à l'affichage. |
 | `measure` | `'reps' \| 'm' \| 'cal' \| 'sec'` | Mesure par défaut proposée dans l'UI. |
 | `loaded` | `boolean` | Si vrai, l'UI propose un champ charge. |
+| `equipment` | `'none' \| 'minimal' \| 'full'` | Niveau de matériel requis — voir §2.5. Axe **indépendant** de `family`. |
 | `fit` | `{ category, name } \| undefined` | Mapping vers l'exercice FIT. **Optionnel** ; absent = repli générique en Phase 2. |
+
+### 2.5 Niveau d'équipement (`equipment`)
+
+Axe orthogonal à `family`, pour filtrer plus tard « qu'est-ce que je peux faire
+avec ce que j'ai ? » :
+
+| Valeur | Sens | Exemples |
+|---|---|---|
+| `none` | Aucun accessoire (poids de corps pur) | Air squat, push-up, sit-up, burpee, fente |
+| `minimal` | Haltère **ou** barre de traction | Pull-up, toes-to-bar, mouvements haltère, muscle-up |
+| `full` | Barre/rack, kettlebell, machines, anneaux, box… | Thruster, deadlift, kettlebell swing, rameur, box jump |
+
+Note : c'est une **première affectation pragmatique** (un box jump exige un box
+mais pas une salle complète) ; à affiner à l'usage. Garder 3 niveaux suffit pour
+la v1 — on évite de modéliser chaque accessoire.
 
 ### 2.2 WOD enrichi
 
@@ -247,12 +264,12 @@ créé, sinon à côté de `formatClock`). Repli : pas de `movements` → on aff
 | E | Cache SW + tests (lecture/écriture, repli texte) + maj README | 1–2 h |
 | **Total** | | **~11–19 h (≈ 1,5–2,5 j)** |
 
-## 7. Questions ouvertes (à trancher avant de coder)
+## 7. Décisions (verrouillées)
 
-1. **Schéma 21-15-9** (§2.4) : on le supporte en v1 (+~1 h) ou on se limite aux
-   reps par mouvement ?
-2. **Unité de charge par défaut** : `kg` (recommandé) — confirmez.
-3. **Catalogue** : la liste du §3 vous convient-elle ? Mouvements à ajouter /
-   retirer pour coller à votre pratique ?
-4. **Pré-remplir les WODs de référence** avec `movements` dès cette phase, ou
-   ne câbler que les WODs perso et enrichir les benchmarks plus tard ?
+1. **Schéma 21-15-9** : ✅ supporté en v1 (champ `scheme` optionnel, §2.4).
+2. **Unité de charge par défaut** : ✅ `kg`.
+3. **Catalogue** : on démarre sur les ~38 du §3. Ajouts attendus ensuite,
+   surtout les mouvements **haltère** (dumbbell). Le niveau d'équipement est
+   modélisé via `equipment` (§2.5).
+4. **WODs de référence** : ✅ pré-remplir `movements` dès cette phase, ce qui
+   révèlera les mouvements manquants au passage.
