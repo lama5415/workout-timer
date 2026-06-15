@@ -223,6 +223,31 @@ html, body {
   padding: 4px;
 }
 
+.move-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.move-row select { flex: 1; min-width: 0; }
+.move-row input[type="number"] { width: 72px; }
+.move-row select, .move-row input {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 0.95rem;
+  padding: 10px;
+}
+.move-row .del {
+  background: none;
+  border: none;
+  color: var(--red);
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 4px;
+}
+
 /* ---------- Timer screen ---------- */
 .timer-screen {
   flex: 1;

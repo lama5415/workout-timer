@@ -28,61 +28,114 @@ export const REFERENCE_WODS = [
     id: 'fran', name: 'Fran', category: 'girls', type: 'fortime',
     params: { capSec: 600 },
     description: '21-15-9 reps de :\n• Thrusters (43/30 kg)\n• Pull-ups',
+    scheme: [21, 15, 9],
+    movements: [
+      { movementId: 'thruster', load: { value: 43, unit: 'kg' } },
+      { movementId: 'pullup' },
+    ],
   },
   {
     id: 'cindy', name: 'Cindy', category: 'girls', type: 'amrap',
     params: { durationSec: 1200 },
     description: 'AMRAP 20 min :\n• 5 pull-ups\n• 10 push-ups\n• 15 air squats',
+    movements: [
+      { movementId: 'pullup', value: 5 },
+      { movementId: 'pushup', value: 10 },
+      { movementId: 'air-squat', value: 15 },
+    ],
   },
   {
     id: 'annie', name: 'Annie', category: 'girls', type: 'fortime',
     params: { capSec: 900 },
     description: '50-40-30-20-10 reps de :\n• Double-unders\n• Sit-ups',
+    scheme: [50, 40, 30, 20, 10],
+    movements: [
+      { movementId: 'double-under' },
+      { movementId: 'situp' },
+    ],
   },
   {
     id: 'grace', name: 'Grace', category: 'girls', type: 'fortime',
     params: { capSec: 600 },
     description: 'For Time :\n• 30 clean & jerks (61/43 kg)',
+    movements: [
+      { movementId: 'clean-jerk', value: 30, load: { value: 61, unit: 'kg' } },
+    ],
   },
   {
     id: 'helen', name: 'Helen', category: 'girls', type: 'fortime',
     params: { capSec: 900 },
     description: '3 rounds For Time :\n• 400 m de course\n• 21 kettlebell swings (24/16 kg)\n• 12 pull-ups',
+    movements: [
+      { movementId: 'run', value: 400 },
+      { movementId: 'kb-swing', value: 21, load: { value: 24, unit: 'kg' } },
+      { movementId: 'pullup', value: 12 },
+    ],
   },
   {
     id: 'karen', name: 'Karen', category: 'girls', type: 'fortime',
     params: { capSec: 900 },
     description: 'For Time :\n• 150 wall-ball shots (9/6 kg)',
+    movements: [
+      { movementId: 'wall-ball', value: 150, load: { value: 9, unit: 'kg' } },
+    ],
   },
   {
     id: 'diane', name: 'Diane', category: 'girls', type: 'fortime',
     params: { capSec: 600 },
     description: '21-15-9 reps de :\n• Deadlifts (102/70 kg)\n• Handstand push-ups',
+    scheme: [21, 15, 9],
+    movements: [
+      { movementId: 'deadlift', load: { value: 102, unit: 'kg' } },
+      { movementId: 'hspu' },
+    ],
   },
   {
     id: 'isabel', name: 'Isabel', category: 'girls', type: 'fortime',
     params: { capSec: 600 },
     description: 'For Time :\n• 30 snatches (61/43 kg)',
+    movements: [
+      { movementId: 'snatch', value: 30, load: { value: 61, unit: 'kg' } },
+    ],
   },
   {
     id: 'jackie', name: 'Jackie', category: 'girls', type: 'fortime',
     params: { capSec: 900 },
     description: 'For Time :\n• 1000 m de rameur\n• 50 thrusters (20/15 kg)\n• 30 pull-ups',
+    movements: [
+      { movementId: 'row', value: 1000 },
+      { movementId: 'thruster', value: 50, load: { value: 20, unit: 'kg' } },
+      { movementId: 'pullup', value: 30 },
+    ],
   },
   {
     id: 'mary', name: 'Mary', category: 'girls', type: 'amrap',
     params: { durationSec: 1200 },
     description: 'AMRAP 20 min :\n• 5 handstand push-ups\n• 10 pistols (alternés)\n• 15 pull-ups',
+    movements: [
+      { movementId: 'hspu', value: 5 },
+      { movementId: 'pistol', value: 10, note: 'alternés' },
+      { movementId: 'pullup', value: 15 },
+    ],
   },
   {
     id: 'chelsea', name: 'Chelsea', category: 'girls', type: 'emom',
     params: { rounds: 30, intervalSec: 60 },
     description: 'EMOM 30 min :\n• 5 pull-ups\n• 10 push-ups\n• 15 air squats\nchaque minute.',
+    movements: [
+      { movementId: 'pullup', value: 5 },
+      { movementId: 'pushup', value: 10 },
+      { movementId: 'air-squat', value: 15 },
+    ],
   },
   {
     id: 'nicole', name: 'Nicole', category: 'girls', type: 'amrap',
     params: { durationSec: 1200 },
     description: 'AMRAP 20 min :\n• 400 m de course\n• Max pull-ups (noter le total de pull-ups)',
+    movements: [
+      { movementId: 'run', value: 400 },
+      { movementId: 'pullup', note: 'max' },
+    ],
   },
   {
     id: 'barbara', name: 'Barbara', category: 'girls', type: 'intervals',
@@ -94,6 +147,12 @@ export const REFERENCE_WODS = [
       ],
     },
     description: '5 rounds, chacun :\n• 20 pull-ups\n• 30 push-ups\n• 40 sit-ups\n• 50 air squats\n3 min de repos entre les rounds (cap de 7 min par round de travail).',
+    movements: [
+      { movementId: 'pullup', value: 20 },
+      { movementId: 'pushup', value: 30 },
+      { movementId: 'situp', value: 40 },
+      { movementId: 'air-squat', value: 50 },
+    ],
   },
 
   // ---------- Hero WODs ----------
@@ -101,16 +160,34 @@ export const REFERENCE_WODS = [
     id: 'murph', name: 'Murph', category: 'hero', type: 'fortime',
     params: { capSec: 3600 },
     description: 'For Time (avec gilet lesté 9/6 kg) :\n• 1 mile de course (1,6 km)\n• 100 pull-ups\n• 200 push-ups\n• 300 air squats\n• 1 mile de course (1,6 km)\nPartitionner les pull-ups/push-ups/squats si besoin.',
+    movements: [
+      { movementId: 'run', value: 1600 },
+      { movementId: 'pullup', value: 100 },
+      { movementId: 'pushup', value: 200 },
+      { movementId: 'air-squat', value: 300 },
+      { movementId: 'run', value: 1600 },
+    ],
   },
   {
     id: 'dt', name: 'DT', category: 'hero', type: 'fortime',
     params: { capSec: 900 },
     description: '5 rounds For Time (70/47,5 kg) :\n• 12 deadlifts\n• 9 hang power cleans\n• 6 push jerks',
+    movements: [
+      { movementId: 'deadlift', value: 12, load: { value: 70, unit: 'kg' } },
+      { movementId: 'hang-power-clean', value: 9, load: { value: 70, unit: 'kg' } },
+      { movementId: 'push-jerk', value: 6, load: { value: 70, unit: 'kg' } },
+    ],
   },
   {
     id: 'jt', name: 'JT', category: 'hero', type: 'fortime',
     params: { capSec: 1200 },
     description: '21-15-9 reps de :\n• Handstand push-ups\n• Ring dips\n• Push-ups',
+    scheme: [21, 15, 9],
+    movements: [
+      { movementId: 'hspu' },
+      { movementId: 'ring-dip' },
+      { movementId: 'pushup' },
+    ],
   },
   {
     id: 'michael', name: 'Michael', category: 'hero', type: 'fortime',
@@ -121,6 +198,9 @@ export const REFERENCE_WODS = [
     id: 'randy', name: 'Randy', category: 'hero', type: 'fortime',
     params: { capSec: 900 },
     description: 'For Time :\n• 75 power snatches (34/25 kg)',
+    movements: [
+      { movementId: 'power-snatch', value: 75, load: { value: 34, unit: 'kg' } },
+    ],
   },
 
   // ---------- Formats génériques ----------
