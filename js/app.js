@@ -914,14 +914,16 @@ function renderSuggest() {
   }
 
   function showResults() {
-    const { suggestions, trainedToday, daysSinceLast } = suggestWods(getHistory(), getAllWods(), { fitness, equipment });
+    const { suggestions, trainedToday, freshStart, daysSinceLast } = suggestWods(getHistory(), getAllWods(), { fitness, equipment });
     const el = app.querySelector('#suggest-results');
     if (!suggestions.length) {
       el.innerHTML = '<div class="empty">Aucun WOD ne correspond à ce matériel.<br>Essaie d\'élargir le matériel disponible.</div>';
       return;
     }
-    const note = daysSinceLast == null
-      ? 'Pas encore d\'historique — suggestions générales.'
+    const note = freshStart
+      ? (daysSinceLast == null
+        ? 'Pas encore d\'historique : on propose un WOD complet pour démarrer.'
+        : `Pas de séance depuis ${Math.round(daysSinceLast)} j : reprise avec un WOD complet.`)
       : trainedToday
         ? 'Tu as déjà chargé aujourd\'hui : priorité aux groupes musculaires frais.'
         : `Dernière séance il y a ${Math.round(daysSinceLast)} j.`;

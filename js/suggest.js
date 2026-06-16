@@ -16,6 +16,9 @@ import { MOVEMENT_MUSCLES, MUSCLES, aggregateMuscles } from './muscles.js';
 
 const EQ_RANK = { none: 0, minimal: 1, full: 2 };
 const HALFLIFE_DAYS = 2; // une séance compte moitié moins tous les 2 jours
+// En-dessous, la charge récente est jugée négligeable (reprise) : ~4 j depuis
+// la dernière sollicitation d'un muscle. On bascule alors sur la couverture.
+const FRESH_THRESHOLD = 0.35;
 
 // Durées visées (secondes) selon la forme.
 const FITNESS_TARGET = {
@@ -78,16 +81,20 @@ function scoreWod(wod, ctx) {
   const muscles = aggregateMuscles(wod.movements || []);
   const targeted = [...muscles.primary, ...muscles.secondary];
 
-  // Fraîcheur : moyenne de (1 - charge/maxLoad) sur les muscles ciblés.
-  let muscleScore = 0.6; // neutre si on ne connaît pas les muscles
-  if (targeted.length && maxLoad > 0) {
+  // Composante musculaire.
+  let muscleScore = 0.6; // neutre si muscles inconnus (WOD flexible)
+  const denom = muscles.primary.length + muscles.secondary.length * 0.5;
+  if (ctx.freshStart && targeted.length) {
+    // Reprise (pas de charge récente) : on favorise un WOD complet (couverture).
+    muscleScore = Math.min(1, denom / 10);
+  } else if (targeted.length && maxLoad > 0) {
+    // Fraîcheur : moyenne de (1 - charge/maxLoad) sur les muscles ciblés.
     let s = 0;
     for (const m of muscles.primary) s += 1 - (load[m] || 0) / maxLoad;
     for (const m of muscles.secondary) s += (1 - (load[m] || 0) / maxLoad) * 0.5;
-    const denom = muscles.primary.length + muscles.secondary.length * 0.5;
     muscleScore = denom ? s / denom : 0.6;
-  } else if (targeted.length && maxLoad === 0) {
-    muscleScore = 1; // aucun historique récent => tout est frais
+  } else if (targeted.length) {
+    muscleScore = 1; // muscles connus mais aucune charge récente => frais
   }
 
   // Durée vs forme du jour.
@@ -107,7 +114,9 @@ function scoreWod(wod, ctx) {
 
   // Raisons lisibles.
   const labelOf = (id) => (MUSCLES.find((x) => x.id === id) || {}).label || id;
-  if (muscleScore >= 0.7 && muscles.primary.length) {
+  if (ctx.freshStart) {
+    if (muscles.primary.length >= 3) reasons.push(`Reprise : WOD complet (${muscles.primary.length} groupes principaux)`);
+  } else if (muscleScore >= 0.7 && muscles.primary.length) {
     reasons.push(`Cible des groupes peu sollicités récemment (${muscles.primary.slice(0, 3).map(labelOf).join(', ')})`);
   } else if (muscleScore <= 0.4 && muscles.primary.length) {
     reasons.push(`⚠️ Sollicite des groupes déjà bien travaillés (${muscles.primary.slice(0, 2).map(labelOf).join(', ')})`);
@@ -131,8 +140,9 @@ export function suggestWods(history, allWods, settings, now = Date.now()) {
   const last = history[0]; // historique trié du plus récent au plus ancien
   const lastWodId = last ? last.wodId : null;
   const trainedToday = last ? daysBetween(now, new Date(last.startedAt).getTime()) < 1 : false;
+  const freshStart = maxLoad < FRESH_THRESHOLD; // reprise / pas de charge récente
 
-  const ctx = { load, maxLoad, target, lastWodId, trainedToday };
+  const ctx = { load, maxLoad, target, lastWodId, trainedToday, freshStart };
 
   const candidates = allWods
     .filter((w) => wodEquipmentRank(w) <= availRank) // matériel suffisant (ou WOD flexible)
@@ -144,6 +154,7 @@ export function suggestWods(history, allWods, settings, now = Date.now()) {
     load,
     maxLoad,
     trainedToday,
+    freshStart,
     daysSinceLast: last ? daysBetween(now, new Date(last.startedAt).getTime()) : null,
   };
 }
