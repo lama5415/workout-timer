@@ -10,8 +10,6 @@
 // base sont standard ; les enums sport/sub_sport sont cosmétiques (une valeur
 // inexacte n'empêche pas l'import, le type est juste réétiquetable dans Garmin).
 
-import { MOVEMENT_BY_ID } from './movements.js';
-
 const FIT_EPOCH = 631065600; // 1989-12-31T00:00:00Z en secondes Unix
 function toFitTime(date) {
   return Math.round(date.getTime() / 1000) - FIT_EPOCH;
@@ -80,38 +78,54 @@ class FitBody {
 const SPORT_TRAINING = 10;
 const SUBSPORT_STRENGTH = 16;
 
-// Codes du profil FIT pour nommer les exercices dans Garmin.
-// category = famille (exercise_category) ; subtype = nom précis (propre à
-// chaque famille). Champs cosmétiques : une valeur absente => famille seule ou
-// série sans nom, jamais de rejet.
-const CATEGORY_CODE = {
-  bench_press: 0, calf_raise: 1, cardio: 2, carry: 3, chop: 4, core: 5,
-  crunch: 6, curl: 7, deadlift: 8, flye: 9, hip_raise: 10, hip_stability: 11,
-  hip_swing: 12, hyperextension: 13, lateral_raise: 14, leg_curl: 15,
-  leg_raise: 16, lunge: 17, olympic_lift: 18, plank: 19, plyo: 20, pull_up: 21,
-  push_up: 22, row: 23, shoulder_press: 24, shoulder_stability: 25, shrug: 26,
-  sit_up: 27, squat: 28, total_body: 29, triceps_extension: 30, warm_up: 31,
-  run: 32,
-};
-
-// Nom précis (category_subtype) par mouvement, quand un équivalent FIT existe.
-// Les mouvements absents reçoivent quand même leur famille (CATEGORY_CODE).
-const SUBTYPE_CODE = {
-  // squat
-  'thruster': 51, 'db-thruster': 51, 'front-squat': 5, 'db-front-squat': 30,
-  'back-squat': 11, 'overhead-squat': 53, 'air-squat': 1, 'pistol': 20,
-  'goblet-squat': 35,
-  // deadlift
-  'deadlift': 0, 'db-deadlift': 2, 'db-rdl': 14, 'sdhp': 16,
-  // olympic_lift
-  'clean': 4, 'power-clean': 2, 'hang-power-clean': 0, 'clean-jerk': 5,
-  'snatch': 9, 'power-snatch': 3,
-  // pull_up / push_up / bench_press
-  'pullup': 38, 'pushup': 77, 'hspu': 25, 'ring-dip': 17,
-  'bench-press': 1, 'db-bench-press': 6,
-  // lunge / carry / row / curl / flye
-  'lunge': 32, 'db-walking-lunge': 79, 'db-overhead-lunge': 0,
-  'farmer-carry': 1, 'db-row': 2, 'db-hammer-curl': 16, 'db-flye': 2,
+// Codes d'exercice du profil FIT : mouvement -> [category, category_subtype].
+// category = famille (exercise_category) ; subtype = nom précis dans cette
+// famille (null = famille seule). Couples vérifiés contre le profil FIT
+// officiel (subtype présent dans l'enum de sa famille). Champs cosmétiques :
+// une valeur absente/inexacte n'empêche pas l'import.
+const FIT_EXERCISE = {
+  // squat (28)
+  'thruster': [28, 79], 'db-thruster': [28, 79], 'front-squat': [28, 8],
+  'db-front-squat': [28, 27], 'back-squat': [28, 6], 'overhead-squat': [28, 44],
+  'air-squat': [28, 61], 'pistol': [28, 47], 'goblet-squat': [28, 37],
+  'wall-ball': [28, 83], 'db-bulgarian-split-squat': [28, 28],
+  'db-box-step-up': [28, 32], 'db-overhead-step-up': [28, 32],
+  // deadlift (8)
+  'deadlift': [8, 0], 'db-deadlift': [8, 2], 'sdhp': [8, 16], 'db-rdl': [8, null],
+  // olympic_lift (18)
+  'clean': [18, 4], 'power-clean': [18, 2], 'hang-power-clean': [18, 0],
+  'clean-jerk': [18, 5], 'snatch': [18, 9], 'power-snatch': [18, 3],
+  'push-jerk': [18, 15], 'db-snatch': [18, 16], 'db-hang-snatch': [18, 17],
+  'db-clean': [18, 12], 'db-hang-clean': [18, 12], 'db-clean-jerk': [18, 5],
+  // shoulder_press (24)
+  'push-press': [24, 3], 'strict-press': [24, 4], 'db-push-press': [24, 8],
+  'db-push-jerk': [24, 8], 'db-shoulder-press': [24, 15],
+  // bench_press (0)
+  'bench-press': [0, 1], 'db-bench-press': [0, 6], 'db-floor-press': [0, 7],
+  // pull_up (21) / push_up (22)
+  'pullup': [21, 38], 'c2b': [21, null], 'muscle-up': [21, null],
+  'rope-climb': [21, null], 'pushup': [22, 77], 'hspu': [22, 25],
+  'ring-dip': [22, null], 'dip': [22, null],
+  // lunge (17)
+  'lunge': [17, 32], 'db-walking-lunge': [17, 77], 'db-front-rack-lunge': [17, 21],
+  'db-overhead-lunge': [17, 0],
+  // row (23) / curl (7) / flye (9) / lateral_raise (14) / triceps_extension (30)
+  'db-row': [23, 2], 'renegade-row': [23, null], 'db-curl': [7, 37],
+  'db-hammer-curl': [7, 16], 'db-flye': [9, 2], 'db-lateral-raise': [14, null],
+  'db-triceps-extension': [30, 15],
+  // plyo (20) / total_body (29)
+  'box-jump': [20, null],
+  'burpee': [29, 0], 'burpee-over-bar': [29, 0], 'man-maker': [29, 5],
+  'devil-press': [29, null], 'turkish-get-up': [29, null], 'wall-walk': [29, null],
+  'handstand-walk': [29, null],
+  // core : sit_up (27) / leg_raise (16) / hyperextension (13)
+  'situp': [27, null], 'ghd-situp': [27, null], 't2b': [16, 1], 'k2e': [16, 0],
+  'back-extension': [13, null],
+  // kettlebell : hip_swing (12) / squat / carry (3)
+  'kb-swing': [12, null], 'farmer-carry': [3, 1],
+  // cardio (2) / run (32)
+  'run': [32, 0], 'row': [2, null], 'bike': [2, null],
+  'double-under': [2, 6], 'single-under': [2, 6],
 };
 
 export function buildFit(entry) {
@@ -176,9 +190,9 @@ export function buildFit(entry) {
       const se = fitStart + Math.round(step * (i + 1));
       const reps = schemeTotal != null ? schemeTotal : (mv.value != null ? mv.value : null);
       const weight = (mv.load && mv.load.unit === 'kg') ? Math.round(mv.load.value * 16) : null;
-      const cat = MOVEMENT_BY_ID[mv.movementId]?.fit
-        ? (CATEGORY_CODE[MOVEMENT_BY_ID[mv.movementId].fit.category] ?? null) : null;
-      const sub = SUBTYPE_CODE[mv.movementId] ?? null;
+      const fx = FIT_EXERCISE[mv.movementId];
+      const cat = fx ? fx[0] : null;
+      const sub = fx ? fx[1] : null;
       // category(7), category_subtype(8) : set_type=active(1)
       fit.data(4, [se, (se - ss) * 1000, reps, weight, 1, cat, sub, ss, i]);
     });
