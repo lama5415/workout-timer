@@ -20,6 +20,7 @@ import { exportTcx } from './tcx.js';
 import { MOVEMENTS, MOVEMENT_BY_ID, FAMILIES, formatMovements } from './movements.js';
 import { aggregateMuscles, musclesFor } from './muscles.js';
 import { bodyMapSvg, muscleLegend } from './bodymap.js';
+import { descriptionFor } from './descriptions.js';
 
 const app = document.getElementById('app');
 let currentEngine = null;
@@ -836,12 +837,18 @@ function renderMoveDetail(id) {
   const m = MOVEMENT_BY_ID[id];
   if (!m) return go('/moves');
   const fam = FAMILIES.find((f) => f[0] === m.family);
+  const description = descriptionFor(m.id);
 
   app.innerHTML = `
     <div class="topbar">
       <button class="back" data-nav="back">‹ Retour</button>
       <h1>${esc(m.name)}</h1>
     </div>
+    ${description ? `
+      <div class="detail-block">
+        <h3>Description</h3>
+        <div class="desc">${esc(description)}</div>
+      </div>` : ''}
     <div class="detail-block">
       <div class="spec-row"><span>Famille</span><span class="v">${esc(fam ? fam[1] : m.family)}</span></div>
       <div class="spec-row"><span>Matériel</span><span class="v">${esc(EQUIP_LABELS[m.equipment] || m.equipment)}</span></div>
