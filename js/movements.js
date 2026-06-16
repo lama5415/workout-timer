@@ -13,6 +13,7 @@
 
 export const FAMILIES = [
   ['halterophilie', 'Haltérophilie'],
+  ['halteres', 'Haltères'],
   ['gymnastique', 'Gymnastique'],
   ['core', 'Gainage / core'],
   ['kettlebell', 'Kettlebell'],
@@ -37,6 +38,40 @@ export const MOVEMENTS = [
   { id: 'push-jerk', name: 'Push jerk', family: 'halterophilie', aliases: ['push jerks'], measure: 'reps', loaded: true, equipment: 'full', fit: { category: 'shoulder_press' } },
   { id: 'strict-press', name: 'Strict press', family: 'halterophilie', aliases: ['shoulder press', 'overhead press', 'développé militaire'], measure: 'reps', loaded: true, equipment: 'full', fit: { category: 'shoulder_press', name: 'overhead_press' } },
 
+  // ---------- Haltères (dumbbell) ----------
+  // Tier 1 — mouvements WOD / CrossFit
+  { id: 'db-snatch', name: 'DB snatch (alterné)', family: 'halteres', aliases: ['dumbbell snatch', 'db snatch', 'single arm dumbbell snatch'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'olympic_lift', name: 'dumbbell_snatch' } },
+  { id: 'db-hang-snatch', name: 'DB hang snatch', family: 'halteres', aliases: ['dumbbell hang snatch'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'olympic_lift' } },
+  { id: 'db-clean', name: 'DB clean', family: 'halteres', aliases: ['dumbbell clean'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'olympic_lift', name: 'dumbbell_clean' } },
+  { id: 'db-hang-clean', name: 'DB hang clean', family: 'halteres', aliases: ['dumbbell hang clean'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'olympic_lift' } },
+  { id: 'db-clean-jerk', name: 'DB clean & jerk', family: 'halteres', aliases: ['dumbbell clean and jerk'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'olympic_lift' } },
+  { id: 'db-thruster', name: 'DB thruster', family: 'halteres', aliases: ['dumbbell thruster', 'db thrusters'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'squat', name: 'dumbbell_thruster' } },
+  { id: 'db-push-press', name: 'DB push press', family: 'halteres', aliases: ['dumbbell push press'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'shoulder_press' } },
+  { id: 'db-push-jerk', name: 'DB push jerk', family: 'halteres', aliases: ['dumbbell push jerk'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'shoulder_press' } },
+  { id: 'db-shoulder-press', name: 'DB shoulder press', family: 'halteres', aliases: ['dumbbell shoulder press', 'dumbbell strict press', 'db overhead press'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'shoulder_press', name: 'dumbbell_shoulder_press' } },
+  { id: 'db-front-squat', name: 'DB front squat', family: 'halteres', aliases: ['dumbbell front squat'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'squat' } },
+  { id: 'db-deadlift', name: 'DB deadlift', family: 'halteres', aliases: ['dumbbell deadlift'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'deadlift', name: 'dumbbell_deadlift' } },
+  { id: 'db-walking-lunge', name: 'DB walking lunge', family: 'halteres', aliases: ['dumbbell walking lunge', 'dumbbell lunge'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'lunge', name: 'dumbbell_lunge' } },
+  { id: 'db-front-rack-lunge', name: 'DB front rack lunge', family: 'halteres', aliases: ['dumbbell front rack lunge'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'lunge' } },
+  { id: 'db-overhead-lunge', name: 'DB overhead lunge', family: 'halteres', aliases: ['dumbbell overhead lunge'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'lunge' } },
+  { id: 'db-box-step-up', name: 'DB box step-up', family: 'halteres', aliases: ['dumbbell box step up', 'dumbbell step up'], measure: 'reps', loaded: true, equipment: 'full', fit: { category: 'lunge', name: 'step_up' } },
+  { id: 'db-overhead-step-up', name: 'DB overhead step-up', family: 'halteres', aliases: ['dumbbell overhead step up'], measure: 'reps', loaded: true, equipment: 'full', fit: { category: 'lunge' } },
+  { id: 'db-row', name: 'DB bent-over row', family: 'halteres', aliases: ['dumbbell row', 'dumbbell bent over row', 'db row'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'row', name: 'dumbbell_row' } },
+  { id: 'renegade-row', name: 'Renegade row', family: 'halteres', aliases: ['renegade rows', 'plank row'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'row' } },
+  { id: 'devil-press', name: 'Devil press', family: 'halteres', aliases: ['devils press', 'devil presses'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'total_body' } },
+  { id: 'man-maker', name: 'Man maker', family: 'halteres', aliases: ['man makers', 'manmaker'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'total_body' } },
+  // Tier 2 — renfo / muscu
+  { id: 'db-rdl', name: 'DB Romanian deadlift', family: 'halteres', aliases: ['dumbbell romanian deadlift', 'dumbbell rdl', 'db rdl'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'deadlift' } },
+  { id: 'db-bulgarian-split-squat', name: 'DB Bulgarian split squat', family: 'halteres', aliases: ['dumbbell bulgarian split squat', 'bulgarian split squat'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'squat' } },
+  { id: 'db-bench-press', name: 'DB bench press', family: 'halteres', aliases: ['dumbbell bench press', 'db bench'], measure: 'reps', loaded: true, equipment: 'full', fit: { category: 'bench_press', name: 'dumbbell_bench_press' } },
+  { id: 'db-floor-press', name: 'DB floor press', family: 'halteres', aliases: ['dumbbell floor press'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'bench_press' } },
+  { id: 'db-curl', name: 'DB biceps curl', family: 'halteres', aliases: ['dumbbell curl', 'dumbbell biceps curl', 'db curl'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'curl', name: 'dumbbell_curl' } },
+  { id: 'db-hammer-curl', name: 'DB hammer curl', family: 'halteres', aliases: ['dumbbell hammer curl', 'hammer curl'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'curl', name: 'dumbbell_hammer_curl' } },
+  { id: 'db-lateral-raise', name: 'DB lateral raise', family: 'halteres', aliases: ['dumbbell lateral raise', 'side raise', 'élévations latérales'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'lateral_raise', name: 'dumbbell_lateral_raise' } },
+  { id: 'db-triceps-extension', name: 'DB triceps extension', family: 'halteres', aliases: ['dumbbell triceps extension', 'skull crusher', 'extension triceps'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'triceps_extension' } },
+  { id: 'db-flye', name: 'DB flye (écarté)', family: 'halteres', aliases: ['dumbbell flye', 'dumbbell fly', 'écarté haltères'], measure: 'reps', loaded: true, equipment: 'full', fit: { category: 'flye', name: 'dumbbell_flye' } },
+  { id: 'turkish-get-up', name: 'Turkish get-up', family: 'halteres', aliases: ['turkish getup', 'tgu', 'get up'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'total_body' } },
+
   // ---------- Gymnastique (poids de corps) ----------
   { id: 'pullup', name: 'Pull-up', family: 'gymnastique', aliases: ['pull-up', 'pull ups', 'pullups', 'tractions'], measure: 'reps', loaded: false, equipment: 'minimal', fit: { category: 'pull_up', name: 'pull_up' } },
   { id: 'c2b', name: 'Chest-to-bar', family: 'gymnastique', aliases: ['chest to bar', 'ctb', 'c2b'], measure: 'reps', loaded: false, equipment: 'minimal', fit: { category: 'pull_up' } },
@@ -58,11 +93,12 @@ export const MOVEMENTS = [
   { id: 'situp', name: 'Sit-up', family: 'core', aliases: ['sit-up', 'sit ups', 'situps', 'abdos'], measure: 'reps', loaded: false, equipment: 'none', fit: { category: 'sit_up', name: 'sit_up' } },
   { id: 'ghd-situp', name: 'GHD sit-up', family: 'core', aliases: ['ghd sit ups', 'ghd situps'], measure: 'reps', loaded: false, equipment: 'full', fit: { category: 'sit_up' } },
   { id: 't2b', name: 'Toes-to-bar', family: 'core', aliases: ['toes to bar', 'ttb', 't2b'], measure: 'reps', loaded: false, equipment: 'minimal', fit: { category: 'leg_raise' } },
+  { id: 'back-extension', name: 'Back extension', family: 'core', aliases: ['back extensions', 'hyperextension', 'extension lombaire'], measure: 'reps', loaded: false, equipment: 'full', fit: { category: 'hyperextension' } },
 
   // ---------- Kettlebell / odd object ----------
   { id: 'kb-swing', name: 'Kettlebell swing', family: 'kettlebell', aliases: ['kettlebell swings', 'kb swing', 'kbs', 'swings'], measure: 'reps', loaded: true, equipment: 'full', fit: { category: 'hip_swing', name: 'kettlebell_swing' } },
-  { id: 'goblet-squat', name: 'Goblet squat', family: 'kettlebell', aliases: ['goblet squats'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'squat', name: 'goblet_squat' } },
-  { id: 'farmer-carry', name: 'Farmer carry', family: 'kettlebell', aliases: ['farmer walk', 'farmers walk', 'portage'], measure: 'm', loaded: true, equipment: 'minimal', fit: { category: 'carry', name: 'farmers_walk' } },
+  { id: 'goblet-squat', name: 'Goblet squat', family: 'kettlebell', aliases: ['goblet squats', 'dumbbell goblet squat'], measure: 'reps', loaded: true, equipment: 'minimal', fit: { category: 'squat', name: 'goblet_squat' } },
+  { id: 'farmer-carry', name: 'Farmer carry', family: 'kettlebell', aliases: ['farmer walk', 'farmers walk', 'portage', 'dumbbell carry'], measure: 'm', loaded: true, equipment: 'minimal', fit: { category: 'carry', name: 'farmers_walk' } },
 
   // ---------- Monostructural (cardio) ----------
   { id: 'run', name: 'Course', family: 'monostructural', aliases: ['run', 'running', 'courir', 'course à pied'], measure: 'm', loaded: false, equipment: 'none', fit: { category: 'run', name: 'run' } },
