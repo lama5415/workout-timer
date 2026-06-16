@@ -23,6 +23,9 @@ Tabata, For Time, AMRAP, EMOM et intervalles personnalisés.
   d'un WOD. Bibliothèque de mouvements accessible via le bouton 💪.
 - **Fiche mouvement** : description textuelle des repères d'exécution
   (`js/descriptions.js`) en plus des muscles, du matériel et de la mesure.
+- **Suggestion du WOD suivant** (bouton 🎯) : classe les WODs selon les muscles
+  travaillés récemment (historique), le matériel disponible et la forme du jour
+  (`js/suggest.js`).
 - **Compte à rebours de 10 s** avant chaque WOD, avec bips sur les
   3 dernières secondes et top départ sonore.
 - **Alertes sonores** : mi-temps de chaque étape (double bip), 3-2-1 avant
@@ -76,6 +79,7 @@ js/movements.js       Bibliothèque de mouvements + saisie structurée
 js/muscles.js         Taxonomie musculaire + muscles par mouvement
 js/bodymap.js         Figure corporelle SVG (zones musculaires)
 js/descriptions.js    Descriptions textuelles des mouvements
+js/suggest.js         Moteur de suggestion du WOD suivant
 js/timer.js           Moteur de timer (pur, sans DOM — portable en natif)
 js/audio.js           Alertes sonores (Web Audio)
 js/storage.js         Persistance locale (WODs customs + historique)

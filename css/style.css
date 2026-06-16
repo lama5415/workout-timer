@@ -388,3 +388,22 @@ a.move-link, div.move-link {
 a.move-link:active { background: var(--border); }
 .move-card { cursor: pointer; }
 .move-card .meta { color: var(--text-dim); font-size: 1.1rem; }
+
+/* ---------- Suggestion de WOD ---------- */
+.choice-row { display: flex; gap: 8px; }
+.choice {
+  flex: 1;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-dim);
+  padding: 12px 8px;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+.choice.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.suggest-note { color: var(--text-dim); font-size: 0.9rem; margin: 4px 0 12px; }
+.suggest-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.suggest-reasons { list-style: none; margin: 0 0 4px; padding: 0; }
+.suggest-reasons li { color: var(--text); font-size: 0.92rem; padding: 3px 0 3px 16px; position: relative; }
+.suggest-reasons li::before { content: '•'; position: absolute; left: 2px; color: var(--accent); }

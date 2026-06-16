@@ -22,6 +22,7 @@ import { MOVEMENTS, MOVEMENT_BY_ID, FAMILIES, formatMovements } from './movement
 import { aggregateMuscles, musclesFor } from './muscles.js';
 import { bodyMapSvg, muscleLegend } from './bodymap.js';
 import { descriptionFor } from './descriptions.js';
+import { suggestWods } from './suggest.js';
 
 const app = document.getElementById('app');
 let currentEngine = null;
@@ -137,6 +138,7 @@ function router() {
     case 'history': return renderHistory();
     case 'moves': return renderMovesLibrary();
     case 'move': return renderMoveDetail(id);
+    case 'suggest': return renderSuggest();
     default: return renderHome();
   }
 }
@@ -162,6 +164,7 @@ function renderHome() {
   app.innerHTML = `
     <div class="topbar">
       <h1>WOD Timer</h1>
+      <button class="icon-btn" data-nav="suggest" title="Suggérer un WOD">🎯</button>
       <button class="icon-btn" data-nav="moves" title="Bibliothèque de mouvements">💪</button>
       <button class="icon-btn" data-nav="history" title="Historique">🕘</button>
     </div>
@@ -187,6 +190,7 @@ function renderHome() {
     renderHome();
   }));
   app.querySelectorAll('.card').forEach((c) => c.addEventListener('click', () => go(`/wod/${c.dataset.wod}`)));
+  app.querySelector('[data-nav="suggest"]').addEventListener('click', () => go('/suggest'));
   app.querySelector('[data-nav="moves"]').addEventListener('click', () => go('/moves'));
   app.querySelector('[data-nav="history"]').addEventListener('click', () => go('/history'));
   app.querySelector('.fab').addEventListener('click', () => go('/edit'));
@@ -871,4 +875,78 @@ function renderMoveDetail(id) {
     ${muscleBlock(musclesFor(m.id)) || '<div class="detail-block"><div class="desc">Muscles non renseignés pour ce mouvement.</div></div>'}
   `;
   app.querySelector('[data-nav="back"]').addEventListener('click', () => history.back());
+}
+
+// ---------- Écran : suggestion du WOD suivant ----------
+
+const FITNESS_OPTS = [['fatigue', 'Fatigué'], ['moyen', 'Moyen'], ['forme', 'En forme']];
+const EQUIP_OPTS = [['none', 'Aucun'], ['minimal', 'Haltère + barre'], ['full', 'Complet']];
+
+function renderSuggest() {
+  let fitness = 'moyen';
+  let equipment = 'full';
+
+  function draw() {
+    app.innerHTML = `
+      <div class="topbar">
+        <button class="back" data-nav="home">‹ Retour</button>
+        <h1>Suggérer un WOD</h1>
+      </div>
+      <div class="detail-block">
+        <h3>Ta forme du jour</h3>
+        <div class="choice-row">
+          ${FITNESS_OPTS.map(([v, l]) => `<button class="choice ${fitness === v ? 'active' : ''}" data-fit="${v}">${l}</button>`).join('')}
+        </div>
+      </div>
+      <div class="detail-block">
+        <h3>Matériel disponible</h3>
+        <div class="choice-row">
+          ${EQUIP_OPTS.map(([v, l]) => `<button class="choice ${equipment === v ? 'active' : ''}" data-eq="${v}">${l}</button>`).join('')}
+        </div>
+      </div>
+      <button class="btn btn-primary" data-act="go">🎯 Proposer</button>
+      <div id="suggest-results"></div>
+    `;
+    app.querySelectorAll('[data-fit]').forEach((b) => b.addEventListener('click', () => { fitness = b.dataset.fit; draw(); }));
+    app.querySelectorAll('[data-eq]').forEach((b) => b.addEventListener('click', () => { equipment = b.dataset.eq; draw(); }));
+    app.querySelector('[data-nav="home"]').addEventListener('click', () => go('/'));
+    app.querySelector('[data-act="go"]').addEventListener('click', showResults);
+  }
+
+  function showResults() {
+    const { suggestions, trainedToday, freshStart, daysSinceLast } = suggestWods(getHistory(), getAllWods(), { fitness, equipment });
+    const el = app.querySelector('#suggest-results');
+    if (!suggestions.length) {
+      el.innerHTML = '<div class="empty">Aucun WOD ne correspond à ce matériel.<br>Essaie d\'élargir le matériel disponible.</div>';
+      return;
+    }
+    const note = freshStart
+      ? (daysSinceLast == null
+        ? 'Pas encore d\'historique : on propose un WOD complet pour démarrer.'
+        : `Pas de séance depuis ${Math.round(daysSinceLast)} j : reprise avec un WOD complet.`)
+      : trainedToday
+        ? 'Tu as déjà chargé aujourd\'hui : priorité aux groupes musculaires frais.'
+        : `Dernière séance il y a ${Math.round(daysSinceLast)} j.`;
+    el.innerHTML = `<div class="suggest-note">${esc(note)}</div>` + suggestions.map((s, i) => `
+      <div class="detail-block">
+        <div class="suggest-head">
+          <div class="info">
+            <div class="name">${i + 1}. ${esc(s.wod.name)}</div>
+            <div class="meta">${TYPE_LABELS[s.wod.type]} · ~${Math.round(s.dur / 60)} min</div>
+          </div>
+          <span class="badge ${s.wod.type}">${TYPE_LABELS[s.wod.type]}</span>
+        </div>
+        ${s.reasons.length ? `<ul class="suggest-reasons">${s.reasons.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>` : ''}
+        ${muscleLegend(s.muscles)}
+        <div class="btn-row" style="margin-top:12px">
+          <button class="btn btn-secondary" data-go-wod="${esc(s.wod.id)}">Voir</button>
+          <button class="btn btn-primary" data-start="${esc(s.wod.id)}">Démarrer</button>
+        </div>
+      </div>`).join('');
+    el.querySelectorAll('[data-go-wod]').forEach((b) => b.addEventListener('click', () => go(`/wod/${b.dataset.goWod}`)));
+    el.querySelectorAll('[data-start]').forEach((b) => b.addEventListener('click', () => { unlockAudio(); go(`/timer/${b.dataset.start}`); }));
+    el.querySelector('.suggest-note').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  draw();
 }
