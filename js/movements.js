@@ -37,6 +37,7 @@ export const MOVEMENTS = [
   { id: 'push-press', name: 'Push press', family: 'halterophilie', aliases: ['push presses'], measure: 'reps', loaded: true, equipment: 'full', fit: { category: 'shoulder_press', name: 'push_press' } },
   { id: 'push-jerk', name: 'Push jerk', family: 'halterophilie', aliases: ['push jerks'], measure: 'reps', loaded: true, equipment: 'full', fit: { category: 'shoulder_press' } },
   { id: 'strict-press', name: 'Strict press', family: 'halterophilie', aliases: ['shoulder press', 'overhead press', 'développé militaire'], measure: 'reps', loaded: true, equipment: 'full', fit: { category: 'shoulder_press', name: 'overhead_press' } },
+  { id: 'bench-press', name: 'Bench press', family: 'halterophilie', aliases: ['barbell bench press', 'développé couché'], measure: 'reps', loaded: true, equipment: 'full', fit: { category: 'bench_press', name: 'barbell_bench_press' } },
 
   // ---------- Haltères (dumbbell) ----------
   // Tier 1 — mouvements WOD / CrossFit
@@ -85,14 +86,17 @@ export const MOVEMENTS = [
   { id: 'lunge', name: 'Fente', family: 'gymnastique', aliases: ['lunge', 'lunges', 'fentes'], measure: 'reps', loaded: false, equipment: 'none', fit: { category: 'lunge', name: 'lunge' } },
   { id: 'box-jump', name: 'Box jump', family: 'gymnastique', aliases: ['box jumps', 'sauts de boîte'], measure: 'reps', loaded: false, equipment: 'full', fit: { category: 'plyo', name: 'box_jump' } },
   { id: 'burpee', name: 'Burpee', family: 'gymnastique', aliases: ['burpees'], measure: 'reps', loaded: false, equipment: 'none', fit: { category: 'total_body', name: 'burpee' } },
+  { id: 'burpee-over-bar', name: 'Burpee over bar', family: 'gymnastique', aliases: ['bar facing burpee', 'burpee over the bar', 'burpees over bar'], measure: 'reps', loaded: false, equipment: 'full', fit: { category: 'total_body', name: 'burpee' } },
   { id: 'wall-ball', name: 'Wall ball', family: 'gymnastique', aliases: ['wall balls', 'wall-ball shots', 'wbs'], measure: 'reps', loaded: true, equipment: 'full', fit: { category: 'squat', name: 'wall_ball' } },
   { id: 'wall-walk', name: 'Wall walk', family: 'gymnastique', aliases: ['wall walks'], measure: 'reps', loaded: false, equipment: 'none', fit: { category: 'total_body' } },
+  { id: 'handstand-walk', name: 'Handstand walk', family: 'gymnastique', aliases: ['handstand walks', 'marche en atr', 'hs walk'], measure: 'm', loaded: false, equipment: 'none', fit: { category: 'total_body' } },
   { id: 'rope-climb', name: 'Montée de corde', family: 'gymnastique', aliases: ['rope climb', 'rope climbs', 'montées de corde'], measure: 'reps', loaded: false, equipment: 'full', fit: { category: 'pull_up', name: 'rope_climb' } },
 
   // ---------- Gainage / core ----------
   { id: 'situp', name: 'Sit-up', family: 'core', aliases: ['sit-up', 'sit ups', 'situps', 'abdos'], measure: 'reps', loaded: false, equipment: 'none', fit: { category: 'sit_up', name: 'sit_up' } },
   { id: 'ghd-situp', name: 'GHD sit-up', family: 'core', aliases: ['ghd sit ups', 'ghd situps'], measure: 'reps', loaded: false, equipment: 'full', fit: { category: 'sit_up' } },
   { id: 't2b', name: 'Toes-to-bar', family: 'core', aliases: ['toes to bar', 'ttb', 't2b'], measure: 'reps', loaded: false, equipment: 'minimal', fit: { category: 'leg_raise' } },
+  { id: 'k2e', name: 'Knees-to-elbow', family: 'core', aliases: ['knees to elbow', 'k2e', 'genoux coudes'], measure: 'reps', loaded: false, equipment: 'minimal', fit: { category: 'leg_raise' } },
   { id: 'back-extension', name: 'Back extension', family: 'core', aliases: ['back extensions', 'hyperextension', 'extension lombaire'], measure: 'reps', loaded: false, equipment: 'full', fit: { category: 'hyperextension' } },
 
   // ---------- Kettlebell / odd object ----------
@@ -105,6 +109,7 @@ export const MOVEMENTS = [
   { id: 'row', name: 'Rameur', family: 'monostructural', aliases: ['row', 'rowing', 'rameur'], measure: 'm', loaded: false, equipment: 'full', fit: { category: 'cardio' } },
   { id: 'bike', name: 'Vélo / Assault bike', family: 'monostructural', aliases: ['bike', 'assault bike', 'echo bike', 'vélo'], measure: 'cal', loaded: false, equipment: 'full', fit: { category: 'cardio' } },
   { id: 'double-under', name: 'Double-under', family: 'monostructural', aliases: ['double unders', 'dus', 'double-unders'], measure: 'reps', loaded: false, equipment: 'minimal', fit: { category: 'cardio', name: 'jump_rope' } },
+  { id: 'single-under', name: 'Single-under', family: 'monostructural', aliases: ['single unders', 'sus', 'corde à sauter'], measure: 'reps', loaded: false, equipment: 'minimal', fit: { category: 'cardio', name: 'jump_rope' } },
 ];
 
 export const MOVEMENT_BY_ID = Object.fromEntries(MOVEMENTS.map((m) => [m.id, m]));
