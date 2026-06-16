@@ -10,8 +10,9 @@
 // base sont standard ; les enums sport/sub_sport sont cosmétiques (une valeur
 // inexacte n'empêche pas l'import, le type est juste réétiquetable dans Garmin).
 
-const FIT_EPOCH = 631065600; // 1989-12-31T00:00:00Z en secondes Unix
+import { MOVEMENT_BY_ID } from './movements.js';
 
+const FIT_EPOCH = 631065600; // 1989-12-31T00:00:00Z en secondes Unix
 function toFitTime(date) {
   return Math.round(date.getTime() / 1000) - FIT_EPOCH;
 }
@@ -79,6 +80,40 @@ class FitBody {
 const SPORT_TRAINING = 10;
 const SUBSPORT_STRENGTH = 16;
 
+// Codes du profil FIT pour nommer les exercices dans Garmin.
+// category = famille (exercise_category) ; subtype = nom précis (propre à
+// chaque famille). Champs cosmétiques : une valeur absente => famille seule ou
+// série sans nom, jamais de rejet.
+const CATEGORY_CODE = {
+  bench_press: 0, calf_raise: 1, cardio: 2, carry: 3, chop: 4, core: 5,
+  crunch: 6, curl: 7, deadlift: 8, flye: 9, hip_raise: 10, hip_stability: 11,
+  hip_swing: 12, hyperextension: 13, lateral_raise: 14, leg_curl: 15,
+  leg_raise: 16, lunge: 17, olympic_lift: 18, plank: 19, plyo: 20, pull_up: 21,
+  push_up: 22, row: 23, shoulder_press: 24, shoulder_stability: 25, shrug: 26,
+  sit_up: 27, squat: 28, total_body: 29, triceps_extension: 30, warm_up: 31,
+  run: 32,
+};
+
+// Nom précis (category_subtype) par mouvement, quand un équivalent FIT existe.
+// Les mouvements absents reçoivent quand même leur famille (CATEGORY_CODE).
+const SUBTYPE_CODE = {
+  // squat
+  'thruster': 51, 'db-thruster': 51, 'front-squat': 5, 'db-front-squat': 30,
+  'back-squat': 11, 'overhead-squat': 53, 'air-squat': 1, 'pistol': 20,
+  'goblet-squat': 35,
+  // deadlift
+  'deadlift': 0, 'db-deadlift': 2, 'db-rdl': 14, 'sdhp': 16,
+  // olympic_lift
+  'clean': 4, 'power-clean': 2, 'hang-power-clean': 0, 'clean-jerk': 5,
+  'snatch': 9, 'power-snatch': 3,
+  // pull_up / push_up / bench_press
+  'pullup': 38, 'pushup': 77, 'hspu': 25, 'ring-dip': 17,
+  'bench-press': 1, 'db-bench-press': 6,
+  // lunge / carry / row / curl / flye
+  'lunge': 32, 'db-walking-lunge': 79, 'db-overhead-lunge': 0,
+  'farmer-carry': 1, 'db-row': 2, 'db-hammer-curl': 16, 'db-flye': 2,
+};
+
 export function buildFit(entry) {
   const startDate = new Date(entry.startedAt);
   const fitStart = toFitTime(startDate);
@@ -130,8 +165,8 @@ export function buildFit(entry) {
   if (moves.length) {
     fit.define(4, 225, [
       { num: 254, base: 'uint32' }, { num: 0, base: 'uint32' }, { num: 3, base: 'uint16' },
-      { num: 4, base: 'uint16' }, { num: 5, base: 'enum' }, { num: 6, base: 'uint32' },
-      { num: 10, base: 'uint16' },
+      { num: 4, base: 'uint16' }, { num: 5, base: 'enum' }, { num: 7, base: 'uint16' },
+      { num: 8, base: 'uint16' }, { num: 6, base: 'uint32' }, { num: 10, base: 'uint16' },
     ]);
     const schemeTotal = (entry.scheme && entry.scheme.length)
       ? entry.scheme.reduce((a, b) => a + b, 0) : null;
@@ -141,7 +176,11 @@ export function buildFit(entry) {
       const se = fitStart + Math.round(step * (i + 1));
       const reps = schemeTotal != null ? schemeTotal : (mv.value != null ? mv.value : null);
       const weight = (mv.load && mv.load.unit === 'kg') ? Math.round(mv.load.value * 16) : null;
-      fit.data(4, [se, (se - ss) * 1000, reps, weight, 1, ss, i]); // set_type=active(1)
+      const cat = MOVEMENT_BY_ID[mv.movementId]?.fit
+        ? (CATEGORY_CODE[MOVEMENT_BY_ID[mv.movementId].fit.category] ?? null) : null;
+      const sub = SUBTYPE_CODE[mv.movementId] ?? null;
+      // category(7), category_subtype(8) : set_type=active(1)
+      fit.data(4, [se, (se - ss) * 1000, reps, weight, 1, cat, sub, ss, i]);
     });
   }
 
