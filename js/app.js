@@ -149,6 +149,19 @@ window.addEventListener('load', router);
 
 // ---------- Écran : liste des WODs ----------
 
+// Texte indexé pour la recherche : nom + description + noms/alias des mouvements.
+function wodSearchText(w) {
+  const parts = [w.name, w.description || ''];
+  for (const mv of (w.movements || [])) {
+    const m = MOVEMENT_BY_ID[mv.movementId];
+    if (m) {
+      parts.push(m.name);
+      if (m.aliases) parts.push(m.aliases.join(' '));
+    }
+  }
+  return parts.join(' ');
+}
+
 function renderHome() {
   const customs = getCustomWods();
   const tabs = [
@@ -174,10 +187,10 @@ function renderHome() {
       ${tabs.map((t) => `<button class="tab ${homeTab === t.id ? 'active' : ''}" data-tab="${t.id}">${t.label}</button>`).join('')}
     </div>
     <input id="wod-search" class="search-box" type="search" inputmode="search"
-      placeholder="Rechercher un WOD…" value="${esc(homeSearch)}">
+      placeholder="Rechercher (nom, mouvement…)" value="${esc(homeSearch)}">
     <div class="card-list" id="wod-list">
       ${wods.map((w) => `
-        <div class="card" data-wod="${esc(w.id)}" data-name="${esc(norm(w.name))}">
+        <div class="card" data-wod="${esc(w.id)}" data-name="${esc(norm(wodSearchText(w)))}">
           <div class="info">
             <div class="name">${esc(w.name)}</div>
             <div class="meta">${w.category === 'custom' ? '<span class="perso">Perso</span> · ' : ''}${esc(wodSummary(w))}</div>
