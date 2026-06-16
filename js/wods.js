@@ -193,6 +193,11 @@ export const REFERENCE_WODS = [
     id: 'michael', name: 'Michael', category: 'hero', type: 'fortime',
     params: { capSec: 1800 },
     description: '3 rounds For Time :\n• 800 m de course\n• 50 back extensions\n• 50 sit-ups',
+    movements: [
+      { movementId: 'run', value: 800 },
+      { movementId: 'back-extension', value: 50 },
+      { movementId: 'situp', value: 50 },
+    ],
   },
   {
     id: 'randy', name: 'Randy', category: 'hero', type: 'fortime',
