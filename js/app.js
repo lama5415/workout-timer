@@ -170,6 +170,7 @@ function renderHome() {
     { id: 'custom', label: CATEGORY_LABELS.custom },
     { id: 'girls', label: CATEGORY_LABELS.girls },
     { id: 'hero', label: CATEGORY_LABELS.hero },
+    { id: 'open', label: CATEGORY_LABELS.open },
     { id: 'generic', label: CATEGORY_LABELS.generic },
   ];
   const wods = homeTab === 'all'
