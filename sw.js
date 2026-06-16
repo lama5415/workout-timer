@@ -1,5 +1,5 @@
 // Service worker : cache de l'app shell pour un fonctionnement hors-ligne.
-const CACHE = 'wod-timer-v2';
+const CACHE = 'wod-timer-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -8,6 +8,8 @@ const ASSETS = [
   './js/app.js',
   './js/wods.js',
   './js/movements.js',
+  './js/muscles.js',
+  './js/bodymap.js',
   './js/timer.js',
   './js/audio.js',
   './js/storage.js',

@@ -18,6 +18,8 @@ import {
 } from './storage.js';
 import { exportTcx } from './tcx.js';
 import { MOVEMENTS, MOVEMENT_BY_ID, FAMILIES, formatMovements } from './movements.js';
+import { aggregateMuscles, musclesFor } from './muscles.js';
+import { bodyMapSvg, muscleLegend } from './bodymap.js';
 
 const app = document.getElementById('app');
 let currentEngine = null;
@@ -56,6 +58,31 @@ function movementsBlock(obj, title) {
       <h3>${esc(title)}</h3>
       <div class="desc">${lines.map(esc).join('\n')}</div>
     </div>`;
+}
+
+// Bloc « Muscles sollicités » : figure corporelle + légende. '' si rien à montrer.
+function muscleBlock(worked, title = 'Muscles sollicités') {
+  if (!worked || (!worked.primary.length && !worked.secondary.length)) return '';
+  return `
+    <div class="detail-block">
+      <h3>${esc(title)}</h3>
+      ${bodyMapSvg(worked)}
+      ${muscleLegend(worked)}
+    </div>`;
+}
+
+// Une ligne de mouvement tappable (vers sa fiche) avec reps/charge formatés.
+function movementRow(mv, scheme) {
+  const m = MOVEMENT_BY_ID[mv.movementId];
+  const name = m ? m.name : mv.movementId;
+  const measure = mv.measure || (m ? m.measure : 'reps');
+  const qty = !scheme && mv.value != null
+    ? `${mv.value}${measure === 'reps' ? '' : ' ' + measure} ` : '';
+  const load = mv.load ? ` — ${mv.load.value} ${mv.load.unit}` : '';
+  const text = `${qty}${name}${load}${mv.note ? ` (${mv.note})` : ''}`;
+  return m
+    ? `<a class="move-link" href="#/move/${esc(m.id)}">${esc(text)} ›</a>`
+    : `<div class="move-link">${esc(text)}</div>`;
 }
 
 function toast(msg) {
@@ -106,6 +133,8 @@ function router() {
     case 'timer': return renderTimer(id);
     case 'result': return renderResult(id);
     case 'history': return renderHistory();
+    case 'moves': return renderMovesLibrary();
+    case 'move': return renderMoveDetail(id);
     default: return renderHome();
   }
 }
@@ -131,6 +160,7 @@ function renderHome() {
   app.innerHTML = `
     <div class="topbar">
       <h1>WOD Timer</h1>
+      <button class="icon-btn" data-nav="moves" title="Bibliothèque de mouvements">💪</button>
       <button class="icon-btn" data-nav="history" title="Historique">🕘</button>
     </div>
     <div class="tabs">
@@ -155,6 +185,7 @@ function renderHome() {
     renderHome();
   }));
   app.querySelectorAll('.card').forEach((c) => c.addEventListener('click', () => go(`/wod/${c.dataset.wod}`)));
+  app.querySelector('[data-nav="moves"]').addEventListener('click', () => go('/moves'));
   app.querySelector('[data-nav="history"]').addEventListener('click', () => go('/history'));
   app.querySelector('.fab').addEventListener('click', () => go('/edit'));
 }
@@ -192,7 +223,13 @@ function renderDetail(id) {
       <h1>${esc(wod.name)}</h1>
       <span class="badge ${wod.type}">${TYPE_LABELS[wod.type]}</span>
     </div>
-    ${movementsBlock(wod, 'Mouvements')}
+    ${wod.movements?.length ? `
+      <div class="detail-block">
+        <h3>Mouvements</h3>
+        ${wod.scheme?.length ? `<div class="scheme-head">${esc(wod.scheme.join('-'))} reps</div>` : ''}
+        ${wod.movements.map((mv) => movementRow(mv, wod.scheme?.length ? wod.scheme : null)).join('')}
+      </div>` : ''}
+    ${muscleBlock(aggregateMuscles(wod.movements || []))}
     ${wod.description ? `
       <div class="detail-block">
         <h3>Workout</h3>
@@ -670,6 +707,7 @@ function renderResult(id) {
       <div class="result-time">${formatClock(entry.totalSec)}</div>
     </div>
     ${movementsBlock(entry, 'Mouvements')}
+    ${muscleBlock(aggregateMuscles(entry.movements || []))}
     ${showRounds ? `
       <div class="field-row">
         <div class="field"><label>Rounds</label>
@@ -759,4 +797,57 @@ function renderHistory() {
       }
     });
   });
+}
+
+// ---------- Écran : bibliothèque de mouvements ----------
+
+function renderMovesLibrary() {
+  app.innerHTML = `
+    <div class="topbar">
+      <button class="back" data-nav="home">‹ Retour</button>
+      <h1>Mouvements</h1>
+    </div>
+    ${FAMILIES.map(([fam, label]) => {
+      const list = MOVEMENTS.filter((m) => m.family === fam);
+      if (!list.length) return '';
+      return `
+        <div class="detail-block">
+          <h3>${esc(label)}</h3>
+          <div class="card-list">
+            ${list.map((m) => `
+              <div class="card move-card" data-move="${esc(m.id)}">
+                <div class="info"><div class="name">${esc(m.name)}</div></div>
+                <span class="meta">›</span>
+              </div>`).join('')}
+          </div>
+        </div>`;
+    }).join('')}
+  `;
+  app.querySelector('[data-nav="home"]').addEventListener('click', () => go('/'));
+  app.querySelectorAll('.move-card').forEach((c) => c.addEventListener('click', () => go(`/move/${c.dataset.move}`)));
+}
+
+// ---------- Écran : fiche d'un mouvement ----------
+
+const EQUIP_LABELS = { none: 'Sans matériel', minimal: 'Haltère / barre de traction', full: 'Matériel complet' };
+const MEASURE_LABELS = { reps: 'Répétitions', m: 'Mètres', cal: 'Calories', sec: 'Secondes' };
+
+function renderMoveDetail(id) {
+  const m = MOVEMENT_BY_ID[id];
+  if (!m) return go('/moves');
+  const fam = FAMILIES.find((f) => f[0] === m.family);
+
+  app.innerHTML = `
+    <div class="topbar">
+      <button class="back" data-nav="back">‹ Retour</button>
+      <h1>${esc(m.name)}</h1>
+    </div>
+    <div class="detail-block">
+      <div class="spec-row"><span>Famille</span><span class="v">${esc(fam ? fam[1] : m.family)}</span></div>
+      <div class="spec-row"><span>Matériel</span><span class="v">${esc(EQUIP_LABELS[m.equipment] || m.equipment)}</span></div>
+      <div class="spec-row"><span>Mesure</span><span class="v">${esc(MEASURE_LABELS[m.measure] || m.measure)}</span></div>
+    </div>
+    ${muscleBlock(musclesFor(m.id)) || '<div class="detail-block"><div class="desc">Muscles non renseignés pour ce mouvement.</div></div>'}
+  `;
+  app.querySelector('[data-nav="back"]').addEventListener('click', () => history.back());
 }
