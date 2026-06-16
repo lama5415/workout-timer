@@ -349,3 +349,42 @@ html, body {
   z-index: 100;
   box-shadow: 0 4px 16px rgba(0,0,0,0.5);
 }
+
+/* ---------- Carte musculaire (Phase A) ---------- */
+.bodymap {
+  display: block;
+  width: 100%;
+  max-width: 340px;
+  margin: 4px auto 12px;
+}
+.bodymap .silhouette { fill: #232a35; }
+.bodymap .m { fill: #39414f; }
+.bodymap .m.secondary { fill: var(--accent); }
+.bodymap .m.primary { fill: var(--red); }
+.bodymap text { fill: var(--text-dim); font-size: 9px; text-anchor: middle; }
+
+.muscle-legend { display: flex; flex-wrap: wrap; gap: 6px; }
+.muscle-chip {
+  font-size: 0.8rem;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+.muscle-chip.primary { background: rgba(248, 81, 73, 0.16); border-color: var(--red); color: #ffb3ad; }
+.muscle-chip.secondary { background: rgba(255, 107, 53, 0.13); border-color: var(--accent); color: #ffc6a3; }
+
+.scheme-head { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 8px; }
+a.move-link, div.move-link {
+  display: block;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+a.move-link:active { background: var(--border); }
+.move-card { cursor: pointer; }
+.move-card .meta { color: var(--text-dim); font-size: 1.1rem; }
