@@ -28,6 +28,7 @@ const app = document.getElementById('app');
 let currentEngine = null;
 let wakeLock = null;
 let homeTab = 'all';
+let homeSearch = '';
 
 function esc(s) {
   return String(s ?? '')
@@ -152,14 +153,15 @@ function renderHome() {
   const customs = getCustomWods();
   const tabs = [
     { id: 'all', label: 'Tous' },
+    { id: 'custom', label: CATEGORY_LABELS.custom },
     { id: 'girls', label: CATEGORY_LABELS.girls },
     { id: 'hero', label: CATEGORY_LABELS.hero },
     { id: 'generic', label: CATEGORY_LABELS.generic },
-    { id: 'custom', label: CATEGORY_LABELS.custom },
   ];
   const wods = homeTab === 'all'
     ? [...customs, ...REFERENCE_WODS]
     : getAllWods().filter((w) => w.category === homeTab);
+  const norm = (s) => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
   app.innerHTML = `
     <div class="topbar">
@@ -171,19 +173,41 @@ function renderHome() {
     <div class="tabs">
       ${tabs.map((t) => `<button class="tab ${homeTab === t.id ? 'active' : ''}" data-tab="${t.id}">${t.label}</button>`).join('')}
     </div>
-    <div class="card-list">
+    <input id="wod-search" class="search-box" type="search" inputmode="search"
+      placeholder="Rechercher un WOD…" value="${esc(homeSearch)}">
+    <div class="card-list" id="wod-list">
       ${wods.map((w) => `
-        <div class="card" data-wod="${esc(w.id)}">
+        <div class="card" data-wod="${esc(w.id)}" data-name="${esc(norm(w.name))}">
           <div class="info">
             <div class="name">${esc(w.name)}</div>
-            <div class="meta">${esc(wodSummary(w))}</div>
+            <div class="meta">${w.category === 'custom' ? '<span class="perso">Perso</span> · ' : ''}${esc(wodSummary(w))}</div>
           </div>
           <span class="badge ${w.type}">${TYPE_LABELS[w.type]}</span>
         </div>`).join('')}
       ${wods.length === 0 ? `<div class="empty">Aucun WOD ici pour l'instant.<br>Crée ton premier WOD custom avec le bouton +</div>` : ''}
+      <div class="empty" id="no-match" style="display:none">Aucun WOD ne correspond à ta recherche.</div>
     </div>
     <button class="fab" title="Nouveau WOD custom">+</button>
   `;
+
+  function applyFilter() {
+    const q = norm(homeSearch).trim();
+    const cards = app.querySelectorAll('#wod-list .card');
+    let visible = 0;
+    cards.forEach((c) => {
+      const match = !q || c.dataset.name.includes(q);
+      c.style.display = match ? '' : 'none';
+      if (match) visible += 1;
+    });
+    const noMatch = app.querySelector('#no-match');
+    if (noMatch) noMatch.style.display = (q && visible === 0 && cards.length) ? '' : 'none';
+  }
+
+  app.querySelector('#wod-search').addEventListener('input', (e) => {
+    homeSearch = e.target.value;
+    applyFilter();
+  });
+  applyFilter();
 
   app.querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => {
     homeTab = b.dataset.tab;
