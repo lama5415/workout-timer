@@ -29,6 +29,7 @@ let currentEngine = null;
 let wakeLock = null;
 let homeTab = 'all';
 let homeSearch = '';
+let movesSearch = '';
 
 function esc(s) {
   return String(s ?? '')
@@ -858,27 +859,56 @@ function renderHistory() {
 // ---------- Écran : bibliothèque de mouvements ----------
 
 function renderMovesLibrary() {
+  const norm = (s) => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const searchText = (m) => norm(`${m.name} ${(m.aliases || []).join(' ')}`);
+
   app.innerHTML = `
     <div class="topbar">
       <button class="back" data-nav="home">‹ Retour</button>
       <h1>Mouvements</h1>
     </div>
-    ${FAMILIES.map(([fam, label]) => {
-      const list = MOVEMENTS.filter((m) => m.family === fam);
-      if (!list.length) return '';
-      return `
-        <div class="detail-block">
-          <h3>${esc(label)}</h3>
-          <div class="card-list">
-            ${list.map((m) => `
-              <div class="card move-card" data-move="${esc(m.id)}">
-                <div class="info"><div class="name">${esc(m.name)}</div></div>
-                <span class="meta">›</span>
-              </div>`).join('')}
-          </div>
-        </div>`;
-    }).join('')}
+    <input id="move-search" class="search-box" type="search" inputmode="search"
+      placeholder="Rechercher un mouvement…" value="${esc(movesSearch)}">
+    <div id="moves-list">
+      ${FAMILIES.map(([fam, label]) => {
+        const list = MOVEMENTS.filter((m) => m.family === fam);
+        if (!list.length) return '';
+        return `
+          <div class="detail-block move-group">
+            <h3>${esc(label)}</h3>
+            <div class="card-list">
+              ${list.map((m) => `
+                <div class="card move-card" data-move="${esc(m.id)}" data-name="${esc(searchText(m))}">
+                  <div class="info"><div class="name">${esc(m.name)}</div></div>
+                  <span class="meta">›</span>
+                </div>`).join('')}
+            </div>
+          </div>`;
+      }).join('')}
+      <div class="empty" id="no-match" style="display:none">Aucun mouvement ne correspond à ta recherche.</div>
+    </div>
   `;
+
+  function applyFilter() {
+    const q = norm(movesSearch).trim();
+    let total = 0;
+    app.querySelectorAll('.move-group').forEach((g) => {
+      let groupVisible = 0;
+      g.querySelectorAll('.move-card').forEach((c) => {
+        const match = !q || c.dataset.name.includes(q);
+        c.style.display = match ? '' : 'none';
+        if (match) groupVisible += 1;
+      });
+      g.style.display = groupVisible ? '' : 'none';
+      total += groupVisible;
+    });
+    const noMatch = app.querySelector('#no-match');
+    if (noMatch) noMatch.style.display = (q && total === 0) ? '' : 'none';
+  }
+
+  app.querySelector('#move-search').addEventListener('input', (e) => { movesSearch = e.target.value; applyFilter(); });
+  applyFilter();
+
   app.querySelector('[data-nav="home"]').addEventListener('click', () => go('/'));
   app.querySelectorAll('.move-card').forEach((c) => c.addEventListener('click', () => go(`/move/${c.dataset.move}`)));
 }
