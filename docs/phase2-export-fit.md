@@ -55,10 +55,13 @@ Encodeur maison sans dépendance (`js/fit.js`). Messages émis :
   (une valeur inexacte n'empêche pas l'import, le type reste réétiquetable dans
   Garmin). À confirmer/ajuster après test, avec d'éventuelles variantes (hiit,
   cardio_training).
-- **Pas de `category` d'exercice FIT** dans les `set` pour l'instant : on
-  envoie reps + charge sans le code d'exercice (qui exige la table d'enums du
-  SDK officiel). Donc Garmin ne nommera pas l'exercice — il montrera la série
-  avec ses reps/charge. À ajouter en étape suivante une fois la base validée.
+- **Nommage des exercices** : les `set` portent désormais `category` (famille)
+  et `category_subtype` (nom précis), codes issus du profil FIT. Couverture
+  partielle : les mouvements courants sont nommés (thruster, squats, deadlifts,
+  cleans, snatchs, pull-up, push-up, HSPU, ring dip, bench press, fentes…) ;
+  les autres reçoivent au moins leur **famille**. Ces codes sont *best-effort*
+  (champs cosmétiques, sans risque de rejet) — **à vérifier dans Garmin** et me
+  signaler tout nom incorrect.
 - **Schéma de reps** (ex. 21-15-9) : un `set` par mouvement avec le **total**
   des reps (45). On pourra découper en un set par tranche plus tard.
 - **Charge** : seule la charge RX en kg est transmise (le scaled n'est pas dans
@@ -69,8 +72,9 @@ Encodeur maison sans dépendance (`js/fit.js`). Messages émis :
 
 ## Suite possible après validation
 
-1. Ajouter la `category`/`category_subtype` d'exercice FIT (mapping déjà amorcé
-   dans `movements.js` via le champ `fit`) pour que Garmin **nomme** les
-   mouvements.
-2. Affiner sport/sub_sport selon le type de WOD (hiit, strength, cardio).
-3. Découper le schéma en sets distincts.
+1. ✅ Nommage des exercices (`category`/`category_subtype`) — fait, à vérifier.
+2. Compléter les noms manquants (devil press, man maker, double-under,
+   kettlebell swing à deux mains, box jump, presses épaules…) une fois leurs
+   codes confirmés.
+3. Affiner sport/sub_sport selon le type de WOD (hiit, strength, cardio).
+4. Découper le schéma en sets distincts.

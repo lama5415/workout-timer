@@ -11,7 +11,6 @@
 // inexacte n'empêche pas l'import, le type est juste réétiquetable dans Garmin).
 
 const FIT_EPOCH = 631065600; // 1989-12-31T00:00:00Z en secondes Unix
-
 function toFitTime(date) {
   return Math.round(date.getTime() / 1000) - FIT_EPOCH;
 }
@@ -79,6 +78,56 @@ class FitBody {
 const SPORT_TRAINING = 10;
 const SUBSPORT_STRENGTH = 16;
 
+// Codes d'exercice du profil FIT : mouvement -> [category, category_subtype].
+// category = famille (exercise_category) ; subtype = nom précis dans cette
+// famille (null = famille seule). Couples vérifiés contre le profil FIT
+// officiel (subtype présent dans l'enum de sa famille). Champs cosmétiques :
+// une valeur absente/inexacte n'empêche pas l'import.
+const FIT_EXERCISE = {
+  // squat (28)
+  'thruster': [28, 79], 'db-thruster': [28, 79], 'front-squat': [28, 8],
+  'db-front-squat': [28, 27], 'back-squat': [28, 6], 'overhead-squat': [28, 44],
+  'air-squat': [28, 61], 'pistol': [28, 47], 'goblet-squat': [28, 37],
+  'wall-ball': [28, 83], 'db-bulgarian-split-squat': [28, 28],
+  'db-box-step-up': [28, 32], 'db-overhead-step-up': [28, 32],
+  // deadlift (8)
+  'deadlift': [8, 0], 'db-deadlift': [8, 2], 'sdhp': [8, 16], 'db-rdl': [8, null],
+  // olympic_lift (18)
+  'clean': [18, 4], 'power-clean': [18, 2], 'hang-power-clean': [18, 0],
+  'clean-jerk': [18, 5], 'snatch': [18, 9], 'power-snatch': [18, 3],
+  'push-jerk': [18, 15], 'db-snatch': [18, 16], 'db-hang-snatch': [18, 17],
+  'db-clean': [18, 12], 'db-hang-clean': [18, 12], 'db-clean-jerk': [18, 5],
+  // shoulder_press (24)
+  'push-press': [24, 3], 'strict-press': [24, 4], 'db-push-press': [24, 8],
+  'db-push-jerk': [24, 8], 'db-shoulder-press': [24, 15],
+  // bench_press (0)
+  'bench-press': [0, 1], 'db-bench-press': [0, 6], 'db-floor-press': [0, 7],
+  // pull_up (21) / push_up (22)
+  'pullup': [21, 38], 'c2b': [21, null], 'muscle-up': [21, null],
+  'rope-climb': [21, null], 'pushup': [22, 77], 'hspu': [22, 25],
+  'ring-dip': [22, null], 'dip': [22, null],
+  // lunge (17)
+  'lunge': [17, 32], 'db-walking-lunge': [17, 77], 'db-front-rack-lunge': [17, 21],
+  'db-overhead-lunge': [17, 0],
+  // row (23) / curl (7) / flye (9) / lateral_raise (14) / triceps_extension (30)
+  'db-row': [23, 2], 'renegade-row': [23, null], 'db-curl': [7, 37],
+  'db-hammer-curl': [7, 16], 'db-flye': [9, 2], 'db-lateral-raise': [14, null],
+  'db-triceps-extension': [30, 15],
+  // plyo (20) / total_body (29)
+  'box-jump': [20, null],
+  'burpee': [29, 0], 'burpee-over-bar': [29, 0], 'man-maker': [29, 5],
+  'devil-press': [29, null], 'turkish-get-up': [29, null], 'wall-walk': [29, null],
+  'handstand-walk': [29, null],
+  // core : sit_up (27) / leg_raise (16) / hyperextension (13)
+  'situp': [27, null], 'ghd-situp': [27, null], 't2b': [16, 1], 'k2e': [16, 0],
+  'back-extension': [13, null],
+  // kettlebell : hip_swing (12) / squat / carry (3)
+  'kb-swing': [12, null], 'farmer-carry': [3, 1],
+  // cardio (2) / run (32)
+  'run': [32, 0], 'row': [2, null], 'bike': [2, null],
+  'double-under': [2, 6], 'single-under': [2, 6],
+};
+
 export function buildFit(entry) {
   const startDate = new Date(entry.startedAt);
   const fitStart = toFitTime(startDate);
@@ -130,8 +179,8 @@ export function buildFit(entry) {
   if (moves.length) {
     fit.define(4, 225, [
       { num: 254, base: 'uint32' }, { num: 0, base: 'uint32' }, { num: 3, base: 'uint16' },
-      { num: 4, base: 'uint16' }, { num: 5, base: 'enum' }, { num: 6, base: 'uint32' },
-      { num: 10, base: 'uint16' },
+      { num: 4, base: 'uint16' }, { num: 5, base: 'enum' }, { num: 7, base: 'uint16' },
+      { num: 8, base: 'uint16' }, { num: 6, base: 'uint32' }, { num: 10, base: 'uint16' },
     ]);
     const schemeTotal = (entry.scheme && entry.scheme.length)
       ? entry.scheme.reduce((a, b) => a + b, 0) : null;
@@ -141,7 +190,11 @@ export function buildFit(entry) {
       const se = fitStart + Math.round(step * (i + 1));
       const reps = schemeTotal != null ? schemeTotal : (mv.value != null ? mv.value : null);
       const weight = (mv.load && mv.load.unit === 'kg') ? Math.round(mv.load.value * 16) : null;
-      fit.data(4, [se, (se - ss) * 1000, reps, weight, 1, ss, i]); // set_type=active(1)
+      const fx = FIT_EXERCISE[mv.movementId];
+      const cat = fx ? fx[0] : null;
+      const sub = fx ? fx[1] : null;
+      // category(7), category_subtype(8) : set_type=active(1)
+      fit.data(4, [se, (se - ss) * 1000, reps, weight, 1, cat, sub, ss, i]);
     });
   }
 
