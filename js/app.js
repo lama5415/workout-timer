@@ -17,6 +17,7 @@ import {
   getHistory, saveHistoryEntry, deleteHistoryEntry, getHistoryEntry,
 } from './storage.js';
 import { exportTcx } from './tcx.js';
+import { MOVEMENTS, MOVEMENT_BY_ID, FAMILIES, formatMovements } from './movements.js';
 
 const app = document.getElementById('app');
 let currentEngine = null;
@@ -27,6 +28,34 @@ function esc(s) {
   return String(s ?? '')
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+// « 21-15-9 » -> [21, 15, 9] ; renvoie null si aucun nombre saisi.
+function parseScheme(s) {
+  const nums = (String(s).match(/\d+/g) || []).map(Number).filter((n) => n > 0);
+  return nums.length ? nums : null;
+}
+
+// <select> de mouvements groupé par famille, option `selectedId` présélectionnée.
+function moveSelect(selectedId) {
+  const groups = FAMILIES.map(([fam, label]) => {
+    const opts = MOVEMENTS.filter((m) => m.family === fam)
+      .map((m) => `<option value="${m.id}" ${m.id === selectedId ? 'selected' : ''}>${esc(m.name)}</option>`)
+      .join('');
+    return `<optgroup label="${esc(label)}">${opts}</optgroup>`;
+  }).join('');
+  return `<select class="m-id"><option value="">— mouvement —</option>${groups}</select>`;
+}
+
+// Bloc d'affichage des mouvements structurés (détail WOD / résultat). '' si aucun.
+function movementsBlock(obj, title) {
+  const lines = formatMovements(obj);
+  if (!lines) return '';
+  return `
+    <div class="detail-block">
+      <h3>${esc(title)}</h3>
+      <div class="desc">${lines.map(esc).join('\n')}</div>
+    </div>`;
 }
 
 function toast(msg) {
@@ -163,6 +192,7 @@ function renderDetail(id) {
       <h1>${esc(wod.name)}</h1>
       <span class="badge ${wod.type}">${TYPE_LABELS[wod.type]}</span>
     </div>
+    ${movementsBlock(wod, 'Mouvements')}
     ${wod.description ? `
       <div class="detail-block">
         <h3>Workout</h3>
@@ -234,7 +264,15 @@ function renderEditor(id) {
     </div>
     <div id="params"></div>
     <div class="field">
-      <label>Description (mouvements, charges…)</label>
+      <label>Mouvements (optionnel)</label>
+      <input id="f-scheme" type="text" inputmode="numeric"
+        placeholder="Schéma de reps — ex. 21-15-9 (laisser vide sinon)"
+        value="${esc((wod.scheme || []).join('-'))}">
+      <div id="movements" style="margin-top:10px"></div>
+      <button class="btn btn-secondary" id="add-move" style="padding:10px;font-size:0.95rem">+ Ajouter un mouvement</button>
+    </div>
+    <div class="field">
+      <label>Description / notes libres (optionnel)</label>
       <textarea id="f-desc" placeholder="• 10 burpees&#10;• 15 kettlebell swings…">${esc(wod.description)}</textarea>
     </div>
     <div style="flex:1"></div>
@@ -336,6 +374,75 @@ function renderEditor(id) {
     renderParams(wod.type);
   });
 
+  // ----- Éditeur de mouvements structurés -----
+  if (!Array.isArray(wod.movements)) wod.movements = [];
+  const movesEl = app.querySelector('#movements');
+  const schemeInput = app.querySelector('#f-scheme');
+  const schemeActive = () => parseScheme(schemeInput.value) != null;
+
+  function readMovements() {
+    movesEl.querySelectorAll('.move-row').forEach((row, i) => {
+      const id = row.querySelector('.m-id').value;
+      const cat = MOVEMENT_BY_ID[id];
+      const valEl = row.querySelector('.m-val');
+      const loadEl = row.querySelector('.m-load');
+      const prev = wod.movements[i] || {};
+      const mv = { movementId: id };
+      const val = valEl ? valEl.value : prev.value; // préserve la valeur masquée par un schéma
+      if (val != null && val !== '') mv.value = Number(val);
+      if (loadEl) {
+        if (loadEl.value !== '') mv.load = { value: Number(loadEl.value), unit: 'kg' };
+      } else if (prev.load) {
+        mv.load = prev.load;
+      }
+      if (cat && cat.measure && cat.measure !== 'reps') mv.measure = cat.measure;
+      if (prev.note) mv.note = prev.note;
+      wod.movements[i] = mv;
+    });
+  }
+
+  function renderMovements() {
+    const showVal = !schemeActive();
+    movesEl.innerHTML = wod.movements.map((mv, i) => {
+      const cat = MOVEMENT_BY_ID[mv.movementId];
+      const showLoad = cat ? cat.loaded : false;
+      return `
+        <div class="move-row" data-i="${i}">
+          ${moveSelect(mv.movementId)}
+          ${showVal ? `<input class="m-val" type="number" min="0" inputmode="numeric"
+            value="${mv.value ?? ''}" placeholder="${cat ? cat.measure : 'reps'}">` : ''}
+          ${showLoad ? `<input class="m-load" type="number" min="0" inputmode="numeric"
+            value="${mv.load?.value ?? ''}" placeholder="kg">` : ''}
+          <button class="del" title="Supprimer">×</button>
+        </div>`;
+    }).join('');
+    movesEl.querySelectorAll('.m-id').forEach((sel) => sel.addEventListener('change', () => {
+      readMovements();
+      renderMovements();
+    }));
+    movesEl.querySelectorAll('.del').forEach((b) => b.addEventListener('click', () => {
+      readMovements();
+      wod.movements.splice(Number(b.closest('.move-row').dataset.i), 1);
+      renderMovements();
+    }));
+  }
+
+  let schemeWasActive = schemeActive();
+  schemeInput.addEventListener('input', () => {
+    const now = schemeActive();
+    if (now !== schemeWasActive) { // ne re-render que quand on (dé)active le schéma
+      readMovements();
+      schemeWasActive = now;
+      renderMovements();
+    }
+  });
+  app.querySelector('#add-move').addEventListener('click', () => {
+    readMovements();
+    wod.movements.push({ movementId: '' });
+    renderMovements();
+  });
+  renderMovements();
+
   app.querySelector('[data-nav="back"]').addEventListener('click', () => history.back());
   app.querySelector('[data-act="save"]').addEventListener('click', () => {
     const name = app.querySelector('#f-name').value.trim();
@@ -368,6 +475,9 @@ function renderEditor(id) {
         steps: wod.params.steps,
       };
     }
+    readMovements();
+    const scheme = parseScheme(schemeInput.value);
+    const movements = wod.movements.filter((m) => m.movementId);
     saveCustomWod({
       id: wod.id,
       name,
@@ -375,6 +485,8 @@ function renderEditor(id) {
       type,
       params,
       description: app.querySelector('#f-desc').value.trim(),
+      ...(scheme ? { scheme } : {}),
+      ...(movements.length ? { movements } : {}),
     });
     go(`/wod/${wod.id}`);
   });
@@ -486,6 +598,8 @@ function renderTimer(id) {
         rounds: countsRounds ? rounds : null,
         reps: null,
         notes: '',
+        ...(wod.movements?.length ? { movements: wod.movements } : {}),
+        ...(wod.scheme?.length ? { scheme: wod.scheme } : {}),
       };
       saveHistoryEntry(entry);
       currentEngine = null;
@@ -555,6 +669,7 @@ function renderResult(id) {
       <h3>${esc(entry.name)}</h3>
       <div class="result-time">${formatClock(entry.totalSec)}</div>
     </div>
+    ${movementsBlock(entry, 'Mouvements')}
     ${showRounds ? `
       <div class="field-row">
         <div class="field"><label>Rounds</label>

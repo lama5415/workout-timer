@@ -13,6 +13,10 @@ Tabata, For Time, AMRAP, EMOM et intervalles personnalisés.
   (Tabata classique, EMOM 10/20, AMRAP 12/20, etc.).
 - **WODs customs** : création depuis zéro ou en dupliquant un WOD de référence
   (« Dupliquer & modifier » sur la fiche d'un WOD).
+- **Mouvements structurés** : bibliothèque de ~40 mouvements (`js/movements.js`)
+  pour décrire un WOD par mouvement + reps/distance + charge, avec schéma de
+  reps optionnel (ex. 21-15-9). Le texte libre reste disponible en parallèle.
+  Voir `docs/phase1-bibliotheque-mouvements.md`.
 - **Compte à rebours de 10 s** avant chaque WOD, avec bips sur les
   3 dernières secondes et top départ sonore.
 - **Alertes sonores** : mi-temps de chaque étape (double bip), 3-2-1 avant
@@ -62,6 +66,7 @@ index.html            Coquille de l'app
 css/style.css         Styles (mobile-first, thème sombre)
 js/app.js             Routeur + écrans (liste, détail, éditeur, timer, historique)
 js/wods.js            Base de WODs de référence + construction des segments
+js/movements.js       Bibliothèque de mouvements + saisie structurée
 js/timer.js           Moteur de timer (pur, sans DOM — portable en natif)
 js/audio.js           Alertes sonores (Web Audio)
 js/storage.js         Persistance locale (WODs customs + historique)

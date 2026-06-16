@@ -50,7 +50,8 @@ export function getWod(id) {
 
 // ---------- Historique ----------
 // Entrée : { id, wodId, name, type, startedAt (ISO), totalSec, aborted,
-//            segments: [{label, kind, durationSec}], rounds, reps, notes }
+//            segments: [{label, kind, durationSec}], rounds, reps, notes,
+//            scheme?: number[], movements?: [{movementId, value?, load?, measure?, note?}] }
 
 export function getHistory() {
   return load(HISTORY_KEY);
