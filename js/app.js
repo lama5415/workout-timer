@@ -17,6 +17,7 @@ import {
   getHistory, saveHistoryEntry, deleteHistoryEntry, getHistoryEntry,
 } from './storage.js';
 import { exportTcx } from './tcx.js';
+import { exportFit } from './fit.js';
 import { MOVEMENTS, MOVEMENT_BY_ID, FAMILIES, formatMovements } from './movements.js';
 import { aggregateMuscles, musclesFor } from './muscles.js';
 import { bodyMapSvg, muscleLegend } from './bodymap.js';
@@ -723,7 +724,10 @@ function renderResult(id) {
     <div style="flex:1"></div>
     <div class="timer-controls">
       <button class="btn btn-primary" data-act="save">Enregistrer</button>
-      <button class="btn btn-secondary" data-act="export">⬇ Exporter en TCX (Garmin)</button>
+      <div class="btn-row">
+        <button class="btn btn-secondary" data-act="export-fit">⬇ FIT (Garmin)</button>
+        <button class="btn btn-secondary" data-act="export">⬇ TCX (Garmin)</button>
+      </div>
     </div>
   `;
 
@@ -744,6 +748,11 @@ function renderResult(id) {
     collect();
     const how = await exportTcx(entry);
     if (how === 'downloaded') toast('Fichier TCX téléchargé');
+  });
+  app.querySelector('[data-act="export-fit"]').addEventListener('click', async () => {
+    collect();
+    const how = await exportFit(entry);
+    if (how === 'downloaded') toast('Fichier FIT téléchargé');
   });
 }
 
@@ -774,7 +783,8 @@ function renderHistory() {
             <span class="badge ${e.type}">${TYPE_LABELS[e.type]}</span>
           </div>
           <div class="history-actions">
-            <button class="small-btn export" data-act="export">⬇ TCX Garmin</button>
+            <button class="small-btn export" data-act="export-fit">⬇ FIT</button>
+            <button class="small-btn export" data-act="export">⬇ TCX</button>
             <button class="small-btn" data-act="edit">Modifier</button>
             <button class="small-btn delete" data-act="delete">Supprimer</button>
           </div>
@@ -789,6 +799,10 @@ function renderHistory() {
     card.querySelector('[data-act="export"]').addEventListener('click', async () => {
       const how = await exportTcx(getHistoryEntry(id));
       if (how === 'downloaded') toast('Fichier TCX téléchargé');
+    });
+    card.querySelector('[data-act="export-fit"]').addEventListener('click', async () => {
+      const how = await exportFit(getHistoryEntry(id));
+      if (how === 'downloaded') toast('Fichier FIT téléchargé');
     });
     card.querySelector('[data-act="edit"]').addEventListener('click', () => go(`/result/${id}`));
     card.querySelector('[data-act="delete"]').addEventListener('click', () => {
