@@ -80,6 +80,7 @@ js/timer.js           Moteur de timer (pur, sans DOM — portable en natif)
 js/audio.js           Alertes sonores (Web Audio)
 js/storage.js         Persistance locale (WODs customs + historique)
 js/tcx.js             Export TCX pour Garmin Connect
+js/fit.js             Export FIT pour Garmin Connect (type + séries)
 sw.js                 Service worker (hors-ligne)
 manifest.webmanifest  Manifest PWA
 ```
