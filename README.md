@@ -36,6 +36,8 @@ Tabata, For Time, AMRAP, EMOM et intervalles personnalisés.
 - **Compteur de rounds** pendant les AMRAP et For Time.
 - **Historique** des séances réalisées (temps, rounds/reps, notes),
   stocké localement sur le téléphone.
+- **Vue calendrier** de l'historique (bouton 📅) : séances repérées par jour,
+  avec ajout d'une **séance passée** (back-dating) depuis un jour du calendrier.
 - **Export Garmin** : chaque séance s'exporte en fichier **TCX**
   (un lap par étape du WOD), importable dans Garmin Connect via
   *Importer des données*. Sur mobile, le partage natif permet d'envoyer
