@@ -18,6 +18,7 @@ export const TYPE_LABELS = {
 export const CATEGORY_LABELS = {
   girls: 'Girls',
   hero: 'Héros',
+  open: 'Open',
   generic: 'Génériques',
   custom: 'Mes WODs',
 };
@@ -205,6 +206,66 @@ export const REFERENCE_WODS = [
     description: 'For Time :\n• 75 power snatches (34/25 kg)',
     movements: [
       { movementId: 'power-snatch', value: 75, load: { value: 34, unit: 'kg' } },
+    ],
+  },
+
+  // ---------- CrossFit Open ----------
+  {
+    id: 'open-17-1', name: 'Open 17.1', category: 'open', type: 'fortime',
+    params: { capSec: 1200 },
+    description: 'For Time (cap 20 min) :\n10-20-30-40-50 dumbbell snatches (22,5/15 kg)\navec 15 burpee box jump-overs (61/51 cm) après chaque série.',
+    movements: [
+      { movementId: 'db-snatch', load: { value: 22.5, unit: 'kg' } },
+      { movementId: 'box-jump' },
+    ],
+  },
+  {
+    id: 'open-17-5', name: 'Open 17.5', category: 'open', type: 'fortime',
+    params: { capSec: 2400 },
+    description: '10 rounds For Time (cap 40 min) :\n• 9 thrusters (43/29 kg)\n• 35 double-unders',
+    movements: [
+      { movementId: 'thruster', value: 9, load: { value: 43, unit: 'kg' } },
+      { movementId: 'double-under', value: 35 },
+    ],
+  },
+  {
+    id: 'open-19-1', name: 'Open 19.1', category: 'open', type: 'amrap',
+    params: { durationSec: 900 },
+    description: 'AMRAP 15 min :\n• 19 wall-ball shots (9/6 kg, cible 10/9 ft)\n• 19 calories au rameur',
+    movements: [
+      { movementId: 'wall-ball', value: 19, load: { value: 9, unit: 'kg' } },
+      { movementId: 'row', value: 19, measure: 'cal' },
+    ],
+  },
+  {
+    id: 'open-20-1', name: 'Open 20.1', category: 'open', type: 'fortime',
+    params: { capSec: 900 },
+    description: '10 rounds For Time (cap 15 min) :\n• 8 ground-to-overhead (43/29 kg)\n• 10 burpees par-dessus la barre',
+    movements: [
+      { movementId: 'clean-jerk', value: 8, load: { value: 43, unit: 'kg' } },
+      { movementId: 'burpee-over-bar', value: 10 },
+    ],
+  },
+  {
+    id: 'open-23-1', name: 'Open 23.1', category: 'open', type: 'amrap',
+    params: { durationSec: 840 },
+    description: 'AMRAP 14 min :\n• 60 calories au rameur\n• 50 toes-to-bars\n• 40 wall-ball shots (9/6 kg)\n• 30 cleans (61/43 kg)\n• 20 muscle-ups',
+    movements: [
+      { movementId: 'row', value: 60, measure: 'cal' },
+      { movementId: 't2b', value: 50 },
+      { movementId: 'wall-ball', value: 40, load: { value: 9, unit: 'kg' } },
+      { movementId: 'clean', value: 30, load: { value: 61, unit: 'kg' } },
+      { movementId: 'muscle-up', value: 20 },
+    ],
+  },
+  {
+    id: 'open-25-1', name: 'Open 25.1', category: 'open', type: 'amrap',
+    params: { durationSec: 900 },
+    description: 'AMRAP 15 min, en montée :\n• 3 lateral burpees par-dessus l\'haltère\n• 3 dumbbell hang clean-to-overhead (22,5/15 kg)\n• 30 ft (2×15 ft) de fente marchée\nÀ chaque round, +3 reps aux burpees et aux clean-to-overhead (la fente reste à 30 ft).',
+    movements: [
+      { movementId: 'burpee' },
+      { movementId: 'db-clean-jerk', load: { value: 22.5, unit: 'kg' } },
+      { movementId: 'lunge' },
     ],
   },
 
