@@ -268,6 +268,90 @@ export const REFERENCE_WODS = [
       { movementId: 'lunge' },
     ],
   },
+  {
+    id: 'open-26-1', name: 'Open 26.1', category: 'open', type: 'fortime',
+    params: { capSec: 720 },
+    description: 'For Time (cap 12 min) — pyramide :\nWall-ball shots (9/6 kg, cible 10/9 ft) en 20-30-40-66-40-30-20,\nséparés par 18 box jump-overs (61/51 cm) ;\nles 2 transitions autour du pic (66) sont des medicine-ball box step-overs.',
+    movements: [
+      { movementId: 'wall-ball', load: { value: 9, unit: 'kg' } },
+      { movementId: 'box-jump' },
+    ],
+  },
+  {
+    id: 'open-26-2', name: 'Open 26.2', category: 'open', type: 'fortime',
+    params: { capSec: 900 },
+    description: 'For Time (cap 15 min) — 3 rounds :\n• 80 ft de fente overhead haltère (22,5/15 kg, 1 bras par segment de 20 ft)\n• 20 dumbbell snatches alternés (22,5/15 kg)\n• 20 tractions (round 1) / chest-to-bar (round 2) / ring muscle-ups (round 3)',
+    movements: [
+      { movementId: 'db-overhead-lunge', load: { value: 22.5, unit: 'kg' } },
+      { movementId: 'db-snatch', value: 20, load: { value: 22.5, unit: 'kg' } },
+      { movementId: 'pullup', value: 20 },
+      { movementId: 'c2b', value: 20 },
+      { movementId: 'muscle-up', value: 20 },
+    ],
+  },
+  {
+    id: 'open-26-3', name: 'Open 26.3', category: 'open', type: 'fortime',
+    params: { capSec: 960 },
+    description: 'For Time (cap 16 min) — 6 rounds, charge croissante tous les 2 rounds :\nChaque round : 12 burpees par-dessus la barre, 12 cleans, 12 burpees par-dessus la barre, 12 thrusters.\nCharges : rounds 1-2 à 43/29 kg, rounds 3-4 à 52/34 kg, rounds 5-6 à 61/38 kg.',
+    movements: [
+      { movementId: 'burpee-over-bar', value: 12 },
+      { movementId: 'clean', value: 12, load: { value: 43, unit: 'kg' } },
+      { movementId: 'thruster', value: 12, load: { value: 43, unit: 'kg' } },
+    ],
+  },
+  {
+    id: 'open-24-1', name: 'Open 24.1', category: 'open', type: 'fortime',
+    params: { capSec: 900 },
+    description: 'For Time (cap 15 min), en 21-15-9 :\n• X dumbbell snatches (1 bras) + X burpees par-dessus l\'haltère\n• X dumbbell snatches (autre bras) + X burpees\n(21, puis 15, puis 9 de chaque). Haltère 22,5/15 kg.',
+    movements: [
+      { movementId: 'db-snatch', load: { value: 22.5, unit: 'kg' } },
+      { movementId: 'burpee' },
+    ],
+  },
+  {
+    id: 'open-24-2', name: 'Open 24.2', category: 'open', type: 'amrap',
+    params: { durationSec: 1200 },
+    description: 'AMRAP 20 min :\n• 300 m de rameur\n• 10 deadlifts (83/56 kg)\n• 50 double-unders',
+    movements: [
+      { movementId: 'row', value: 300 },
+      { movementId: 'deadlift', value: 10, load: { value: 83, unit: 'kg' } },
+      { movementId: 'double-under', value: 50 },
+    ],
+  },
+  {
+    id: 'open-24-3', name: 'Open 24.3', category: 'open', type: 'fortime',
+    params: { capSec: 900 },
+    description: 'For Time (cap 15 min) :\n5 rounds de 10 thrusters (43/29 kg) + 10 chest-to-bar,\n1 min de repos,\npuis 5 rounds de 10 thrusters (61/43 kg) + 10 bar muscle-ups.',
+    movements: [
+      { movementId: 'thruster', value: 10, load: { value: 43, unit: 'kg' } },
+      { movementId: 'c2b', value: 10 },
+      { movementId: 'muscle-up', value: 10 },
+    ],
+  },
+  {
+    id: 'open-25-2', name: 'Open 25.2', category: 'open', type: 'fortime',
+    params: { capSec: 720 },
+    description: 'For Time (cap 12 min) :\n• 21 pull-ups, 42 double-unders, 21 thrusters (29/20 kg)\n• 18 chest-to-bar, 36 double-unders, 18 thrusters (38/25 kg)\n• 15 bar muscle-ups, 30 double-unders, 15 thrusters (47/29 kg)',
+    movements: [
+      { movementId: 'pullup', value: 21 },
+      { movementId: 'double-under', value: 42 },
+      { movementId: 'thruster', value: 21, load: { value: 29, unit: 'kg' } },
+      { movementId: 'c2b', value: 18 },
+      { movementId: 'muscle-up', value: 15 },
+    ],
+  },
+  {
+    id: 'open-25-3', name: 'Open 25.3', category: 'open', type: 'fortime',
+    params: { capSec: 1200 },
+    description: 'For Time (cap 20 min) :\n5 wall walks, 50 cal rameur, 5 wall walks, 25 deadlifts, 5 wall walks,\n25 cleans, 5 wall walks, 25 snatches, 5 wall walks, 50 cal rameur.\n(charges à la barre Rx — à compléter)',
+    movements: [
+      { movementId: 'wall-walk', value: 5 },
+      { movementId: 'row', value: 50, measure: 'cal' },
+      { movementId: 'deadlift', value: 25 },
+      { movementId: 'clean', value: 25 },
+      { movementId: 'snatch', value: 25 },
+    ],
+  },
 
   // ---------- Formats génériques ----------
   {
