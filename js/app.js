@@ -5,6 +5,8 @@
 //  #/timer/:id   timer
 //  #/result/:id  saisie du résultat d'une séance
 //  #/history     historique des séances
+//  #/calendar    vue calendrier de l'historique
+//  #/add/:day    ajout d'une séance passée (YYYY-MM-DD)
 
 import {
   TYPE_LABELS, CATEGORY_LABELS, REFERENCE_WODS,
@@ -141,6 +143,7 @@ function router() {
     case 'result': return renderResult(id);
     case 'history': return renderHistory();
     case 'calendar': return renderCalendar();
+    case 'add': return renderAddSession(id);
     case 'moves': return renderMovesLibrary();
     case 'move': return renderMoveDetail(id);
     case 'suggest': return renderSuggest();
@@ -939,14 +942,88 @@ function renderDaySessions(sessions, key) {
   const el = app.querySelector('#cal-day');
   if (!el) return;
   const label = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full' }).format(new Date(`${key}T12:00:00`));
-  if (!sessions.length) {
-    el.innerHTML = `<div class="detail-block"><h3>${esc(label)}</h3><div class="desc">Aucune séance ce jour.</div></div>`;
-    return;
-  }
+  const list = sessions.length
+    ? sessions.map((e) => `<a class="move-link" href="#/result/${esc(e.id)}">${esc(e.name)} — ${formatClock(e.totalSec)}${e.aborted ? ' (arrêté)' : ''} ›</a>`).join('')
+    : '<div class="desc">Aucune séance ce jour.</div>';
   el.innerHTML = `<div class="detail-block">
     <h3>${esc(label)}</h3>
-    ${sessions.map((e) => `<a class="move-link" href="#/result/${esc(e.id)}">${esc(e.name)} — ${formatClock(e.totalSec)}${e.aborted ? ' (arrêté)' : ''} ›</a>`).join('')}
+    ${list}
+    <button class="btn btn-secondary" data-add-day="${esc(key)}" style="margin-top:10px">+ Ajouter une séance</button>
   </div>`;
+  el.querySelector('[data-add-day]').addEventListener('click', () => go(`/add/${key}`));
+}
+
+// ---------- Écran : ajouter une séance passée (back-dating) ----------
+
+function renderAddSession(day) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day || '')) return go('/calendar');
+  const all = getAllWods();
+  const order = ['custom', 'girls', 'hero', 'open', 'generic'];
+  const groups = order
+    .map((cat) => [cat, all.filter((w) => w.category === cat)])
+    .filter(([, list]) => list.length);
+  const label = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full' }).format(new Date(`${day}T12:00:00`));
+
+  app.innerHTML = `
+    <div class="topbar">
+      <button class="back" data-nav="back">‹ Annuler</button>
+      <h1>Ajouter une séance</h1>
+    </div>
+    <div class="detail-block"><div class="desc">${esc(label)}</div></div>
+    <div class="field">
+      <label>WOD réalisé</label>
+      <select id="a-wod">
+        ${groups.map(([cat, list]) => `<optgroup label="${esc(CATEGORY_LABELS[cat] || cat)}">${list.map((w) => `<option value="${esc(w.id)}">${esc(w.name)}</option>`).join('')}</optgroup>`).join('')}
+      </select>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Durée (min)</label>
+        <input id="a-min" type="number" min="0" inputmode="numeric" value="0"></div>
+      <div class="field"><label>(s)</label>
+        <input id="a-sec" type="number" min="0" max="59" inputmode="numeric" value="0"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Rounds (optionnel)</label>
+        <input id="a-rounds" type="number" min="0" inputmode="numeric" value="0"></div>
+      <div class="field"><label>Reps (optionnel)</label>
+        <input id="a-reps" type="number" min="0" inputmode="numeric" value="0"></div>
+    </div>
+    <div class="field">
+      <label>Notes (charges, ressenti…)</label>
+      <textarea id="a-notes"></textarea>
+    </div>
+    <button class="btn btn-primary" data-act="save">Enregistrer la séance</button>
+  `;
+
+  app.querySelector('[data-nav="back"]').addEventListener('click', () => history.back());
+  app.querySelector('[data-act="save"]').addEventListener('click', () => {
+    const wod = getWod(app.querySelector('#a-wod').value);
+    if (!wod) { toast('Choisis un WOD'); return; }
+    const min = parseInt(app.querySelector('#a-min').value, 10) || 0;
+    const sec = parseInt(app.querySelector('#a-sec').value, 10) || 0;
+    const [y, m, d] = day.split('-').map(Number);
+    const rounds = parseInt(app.querySelector('#a-rounds').value, 10) || 0;
+    const reps = parseInt(app.querySelector('#a-reps').value, 10) || 0;
+    const entry = {
+      id: newId(),
+      wodId: wod.id,
+      name: wod.name,
+      type: wod.type,
+      startedAt: new Date(y, m - 1, d, 12, 0, 0).toISOString(), // midi local : pas de décalage de jour
+      totalSec: min * 60 + sec,
+      aborted: false,
+      segments: [],
+      rounds: rounds || null,
+      reps: reps || null,
+      notes: app.querySelector('#a-notes').value.trim(),
+      ...(wod.movements?.length ? { movements: wod.movements } : {}),
+      ...(wod.scheme?.length ? { scheme: wod.scheme } : {}),
+    };
+    saveHistoryEntry(entry);
+    calSelectedDay = day;
+    toast('Séance ajoutée');
+    go('/calendar');
+  });
 }
 
 // ---------- Écran : bibliothèque de mouvements ----------
