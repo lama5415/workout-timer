@@ -30,6 +30,8 @@ let wakeLock = null;
 let homeTab = 'all';
 let homeSearch = '';
 let movesSearch = '';
+let calMonth = null;       // Date : 1er du mois affiché dans le calendrier
+let calSelectedDay = null; // 'YYYY-MM-DD' du jour sélectionné
 
 function esc(s) {
   return String(s ?? '')
@@ -138,6 +140,7 @@ function router() {
     case 'timer': return renderTimer(id);
     case 'result': return renderResult(id);
     case 'history': return renderHistory();
+    case 'calendar': return renderCalendar();
     case 'moves': return renderMovesLibrary();
     case 'move': return renderMoveDetail(id);
     case 'suggest': return renderSuggest();
@@ -808,6 +811,7 @@ function renderHistory() {
     <div class="topbar">
       <button class="back" data-nav="home">‹ Retour</button>
       <h1>Historique</h1>
+      <button class="icon-btn" data-nav="calendar" title="Vue calendrier">📅</button>
     </div>
     <div class="card-list">
       ${history.map((e) => `
@@ -836,6 +840,7 @@ function renderHistory() {
   `;
 
   app.querySelector('[data-nav="home"]').addEventListener('click', () => go('/'));
+  app.querySelector('[data-nav="calendar"]').addEventListener('click', () => go('/calendar'));
   app.querySelectorAll('.card').forEach((card) => {
     const id = card.dataset.id;
     card.querySelector('[data-act="export"]').addEventListener('click', async () => {
@@ -854,6 +859,93 @@ function renderHistory() {
       }
     });
   });
+}
+
+// ---------- Écran : calendrier de l'historique ----------
+
+// Clé jour locale 'YYYY-MM-DD' d'une date.
+function dayKey(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function renderCalendar() {
+  if (!calMonth) {
+    const n = new Date();
+    calMonth = new Date(n.getFullYear(), n.getMonth(), 1);
+  }
+  const history = getHistory();
+  const byDay = {};
+  for (const e of history) {
+    const k = dayKey(new Date(e.startedAt));
+    (byDay[k] = byDay[k] || []).push(e);
+  }
+
+  const year = calMonth.getFullYear();
+  const month = calMonth.getMonth();
+  const monthLabel = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(calMonth);
+  const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7; // lundi = 0
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const todayKey = dayKey(new Date());
+
+  const cells = [];
+  for (let i = 0; i < firstWeekday; i += 1) cells.push('<div class="cal-cell empty"></div>');
+  for (let d = 1; d <= daysInMonth; d += 1) {
+    const key = dayKey(new Date(year, month, d));
+    const n = (byDay[key] || []).length;
+    const cls = ['cal-cell'];
+    if (n) cls.push('has');
+    if (key === todayKey) cls.push('today');
+    if (key === calSelectedDay) cls.push('sel');
+    cells.push(`<div class="${cls.join(' ')}" data-day="${key}">
+      <span class="cal-num">${d}</span>
+      ${n ? `<span class="cal-dot">${n > 1 ? n : ''}</span>` : ''}
+    </div>`);
+  }
+
+  const weekdays = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+  app.innerHTML = `
+    <div class="topbar">
+      <button class="back" data-nav="history">‹ Liste</button>
+      <h1>Calendrier</h1>
+    </div>
+    <div class="cal-head">
+      <button class="cal-nav" data-mon="-1">‹</button>
+      <div class="cal-month">${esc(monthLabel)}</div>
+      <button class="cal-nav" data-mon="1">›</button>
+    </div>
+    <div class="cal-grid cal-weekdays">${weekdays.map((w) => `<div class="cal-wd">${w}</div>`).join('')}</div>
+    <div class="cal-grid">${cells.join('')}</div>
+    <div id="cal-day"></div>
+  `;
+
+  app.querySelector('[data-nav="history"]').addEventListener('click', () => go('/history'));
+  app.querySelectorAll('[data-mon]').forEach((b) => b.addEventListener('click', () => {
+    calMonth = new Date(year, month + Number(b.dataset.mon), 1);
+    calSelectedDay = null;
+    renderCalendar();
+  }));
+  app.querySelectorAll('.cal-cell[data-day]').forEach((c) => c.addEventListener('click', () => {
+    calSelectedDay = c.dataset.day;
+    renderCalendar();
+  }));
+  if (calSelectedDay) renderDaySessions(byDay[calSelectedDay] || [], calSelectedDay);
+}
+
+function renderDaySessions(sessions, key) {
+  const el = app.querySelector('#cal-day');
+  if (!el) return;
+  const label = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full' }).format(new Date(`${key}T12:00:00`));
+  if (!sessions.length) {
+    el.innerHTML = `<div class="detail-block"><h3>${esc(label)}</h3><div class="desc">Aucune séance ce jour.</div></div>`;
+    return;
+  }
+  el.innerHTML = `<div class="detail-block">
+    <h3>${esc(label)}</h3>
+    ${sessions.map((e) => `<a class="move-link" href="#/result/${esc(e.id)}">${esc(e.name)} — ${formatClock(e.totalSec)}${e.aborted ? ' (arrêté)' : ''} ›</a>`).join('')}
+  </div>`;
 }
 
 // ---------- Écran : bibliothèque de mouvements ----------
