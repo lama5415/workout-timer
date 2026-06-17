@@ -10,8 +10,8 @@ Tabata, For Time, AMRAP, EMOM et intervalles personnalisés.
 - **Base de WODs préremplie** : benchmarks « Girls » (Fran, Cindy, Annie,
   Grace, Helen, Karen, Diane, Isabel, Jackie, Mary, Chelsea, Nicole, Barbara),
   Hero WODs (Murph, DT, JT, Michael, Randy), WODs du CrossFit Open
-  (17.1, 17.5, 19.1, 20.1, 23.1) et gabarits génériques
-  (Tabata classique, EMOM 10/20, AMRAP 12/20, etc.).
+  (17.1, 17.5, 19.1, 20.1, 23.1, 25.1, 26.1, 26.2, 26.3) et gabarits
+  génériques (Tabata classique, EMOM 10/20, AMRAP 12/20, etc.).
 - **WODs customs** : création depuis zéro ou en dupliquant un WOD de référence
   (« Dupliquer & modifier » sur la fiche d'un WOD).
 - **Mouvements structurés** : bibliothèque de 76 mouvements (`js/movements.js`)
