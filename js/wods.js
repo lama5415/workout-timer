@@ -258,6 +258,16 @@ export const REFERENCE_WODS = [
       { movementId: 'muscle-up', value: 20 },
     ],
   },
+  {
+    id: 'open-25-1', name: 'Open 25.1', category: 'open', type: 'amrap',
+    params: { durationSec: 900 },
+    description: 'AMRAP 15 min, en montée :\n• 3 lateral burpees par-dessus l\'haltère\n• 3 dumbbell hang clean-to-overhead (22,5/15 kg)\n• 30 ft (2×15 ft) de fente marchée\nÀ chaque round, +3 reps aux burpees et aux clean-to-overhead (la fente reste à 30 ft).',
+    movements: [
+      { movementId: 'burpee' },
+      { movementId: 'db-clean-jerk', load: { value: 22.5, unit: 'kg' } },
+      { movementId: 'lunge' },
+    ],
+  },
 
   // ---------- Formats génériques ----------
   {
